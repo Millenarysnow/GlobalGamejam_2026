@@ -8,6 +8,8 @@
 # Do not ignore current project's `.uproject`.
 !/*.uproject
 
+!/README.md
+
 # Do not ignore source, config and plugins dirs.
 !/Source/**
 !/Config/**
