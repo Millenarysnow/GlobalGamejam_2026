@@ -61,6 +61,9 @@ bool USkillNode::AddChildNode(USkillNode* Node, OnBranchNode Branch)
 
 void USkillNode::RemoveChildNode(USkillNode* Node, OnBranchNode Branch)
 {
+	if (!Node) return ;
+
+	// 从子节点列表中移除
 	for (int i = 0; i < ChildNodes.Num(); i++)
 	{
 		if (ChildNodes[i]->GetHashID() == Node->GetHashID())
@@ -71,11 +74,10 @@ void USkillNode::RemoveChildNode(USkillNode* Node, OnBranchNode Branch)
 		}
 	}
 
-	if (Branch != OnBranchNode::No)
-	{
-		if (Branch == OnBranchNode::TrU) BranchTrueNode = nullptr;
-		else BranchFalseNode = nullptr;
-	}
+	if (BranchTrueNode->GetHashID() == Node->GetHashID())
+		BranchTrueNode = nullptr;
+	if (BranchFalseNode->GetHashID() == Node->GetHashID())
+		BranchFalseNode = nullptr;
 	
 	CalculateDelayTime();
 }
@@ -241,7 +243,8 @@ void USkillNode::ForceRemoveAllChild()
 {
 	for (auto& Element : ChildNodes)
 	{
-		Element->SetParentNode(nullptr);
+		if (Element)
+			Element->SetParentNode(nullptr);
 	}
 	ChildNodes.Empty();
 

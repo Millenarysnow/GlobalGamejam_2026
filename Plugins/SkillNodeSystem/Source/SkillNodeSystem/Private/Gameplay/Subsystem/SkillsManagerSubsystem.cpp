@@ -43,17 +43,24 @@ USkillNode* USkillsManagerSubsystem::NewSkillNode(const FSkillNodeInfo& NodeInfo
 
 void USkillsManagerSubsystem::DeleteSkillNode(USkillNode* Node, OnBranchNode Branch)
 {
+	if (!Node) return ;
+	
 	HashToNode.Remove(Node->GetHashID());
 
-	USkillNode* TempChildNode = Node->GetFirstChildNode();
-	
+	// 重置所有子节点的状态
+	Node->ForEachChild([this](USkillNode* Child)
+	{
+		if (Child)
+		{
+			Child->SetParentNode(nullptr);
+			Child->SetAccumulativeInfo(FAccumulativeInfo::ZeroValue);
+			DfsUpdateForwardParam(Child);
+		}
+	});
+
+	// 清空子节点列表
 	Node->ForceRemoveAllChild();
 
-	if (Node->GetNodeType() == ESkillNodeType::LoopEndNode)
-	{
-		ConnectNode(Node->GetParentNode(), TempChildNode);
-	}
-	
 	if (Node->GetParentNode())
 		DisconnectNode(Node->GetParentNode(), Node, Branch);
 
@@ -67,6 +74,12 @@ bool USkillsManagerSubsystem::ConnectNode(USkillNode* ParentNode, USkillNode* Ch
 {
 	if (!ParentNode || !ChildNode) return false;
 	if (ParentNode->GetHashID() == ChildNode->GetHashID()) return false;
+
+	// 如果子节点已经有父节点，断开之前连接
+	if (ChildNode->GetParentNode())
+	{
+		DisconnectNode(ChildNode->GetParentNode(), ChildNode, OnBranchNode::No);
+	}
 	
 	if (!ParentNode->AddChildNode(ChildNode, Branch)) return false;
 	
