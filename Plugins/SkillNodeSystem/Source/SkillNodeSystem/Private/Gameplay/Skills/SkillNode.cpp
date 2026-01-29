@@ -179,16 +179,31 @@ int32 USkillNode::CalculateDelayTime()
 	 * 参数节点本身不添加累加延迟
 	 * 如果不是参数节点，就施加累加减少的延迟
 	 */
-	float ReduceDelayTimeValue = std::max(1.0f - AccumulativeInfo.AccReduceDelayTimeValue, 0.0f);
-	int32 DelayTime = (GetNodeType() == ESkillNodeType::ParamNode) ? 0 : ReduceDelayTimeValue * NodeInfo.DelayTime;
 
+	// 计算自身延迟
+	float ReduceDelayTimeValue = std::max(1.0f - AccumulativeInfo.AccReduceDelayTimeValue, 0.0f);
+	int32 SelfDelayTime = (GetNodeType() == ESkillNodeType::ParamNode) ? 0 : ReduceDelayTimeValue * NodeInfo.DelayTime;
+
+	// 计算子节点最大延迟
+	int32 MaxChildDelay = 0;
 	for (const auto& Element : ChildNodes)
 	{
-		DelayTime = std::max(DelayTime, Element->GetDelayTime());
+		MaxChildDelay = std::max(MaxChildDelay, Element->GetDelayTime());
 	}
 
-	AllDelayTime = DelayTime;
+	// 计算总延迟
+	int32 TotalDelay = 0;
+	if (GetNodeType() == ESkillNodeType::LoopStartNode)
+	{
+		// 循环节点需要把子节点延迟乘以循环次数
+		TotalDelay = (SelfDelayTime + MaxChildDelay) * NodeInfo.LoopCount;
+	}
+	else
+	{
+		TotalDelay = MaxChildDelay + SelfDelayTime;
+	}
 
+	AllDelayTime = TotalDelay;
 	return AllDelayTime;
 }
 

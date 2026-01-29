@@ -128,20 +128,51 @@ void USkillsManagerSubsystem::DfsUpdateForwardParam(USkillNode* _Node)
 	if (!_Node) return;
 
 	// 如果父节点是参数节点，就把信息传下来
-	FAccumulativeInfo AccumulativeInfo = FAccumulativeInfo::ZeroValue;
+	FAccumulativeInfo CurrentInfo = FAccumulativeInfo::ZeroValue;
 	if (_Node->GetParentNode() && _Node->GetParentNode()->GetNodeType() == ESkillNodeType::ParamNode)
-		AccumulativeInfo = _Node->GetParentNode()->GetAccumulativeInfo();
-
-	_Node->SetAccumulativeInfo(_Node->GetAccumulativeInfo() + AccumulativeInfo);
-
-	// 如果已经找到第一个普通节点，处理并返回
-	if (_Node->GetNodeType() != ESkillNodeType::ParamNode)
 	{
-		UpdateTimeDelay(_Node);
-		return;
+		CurrentInfo = _Node->GetParentNode()->GetAccumulativeInfo();
 	}
-	
-	DfsUpdateForwardParam(_Node->GetFirstChildNode());
+
+	// 如果当前是参数节点，将自身的配置值添加到累加信息中
+	if (_Node->GetNodeType() == ESkillNodeType::ParamNode)
+	{
+		const FSkillNodeInfo& Info = _Node->GetNodeInfo();
+		switch (Info.ParamType)
+		{
+		case EParamType::Damage:
+			CurrentInfo.AccDamageValue += Info.ParamFloatValue;
+			break;
+		case EParamType::EffectiveTime:
+			CurrentInfo.AccEffectiveTimeValue += Info.ParamFloatValue;
+			break;
+		case EParamType::ReduceDelayTime:
+			CurrentInfo.AccReduceDelayTimeValue += Info.ParamFloatValue;
+			break;
+		case EParamType::Radius:
+			CurrentInfo.RadiusValue += Info.ParamFloatValue;
+			break;
+		default:
+			break;
+		}
+	}
+
+	// 更新当前节点的累加信息
+	_Node->SetAccumulativeInfo(CurrentInfo);
+
+	if (_Node->GetNodeType() == ESkillNodeType::ParamNode)
+	{
+		// 如果是参数节点，继续下传
+		_Node->ForEachChild([this](USkillNode* Child)
+		{
+			DfsUpdateForwardParam(Child);
+		});
+	}
+	else
+	{
+		// 如果是非参数节点，向上更新延迟
+		UpdateTimeDelay(_Node);	
+	}
 }
 
 void USkillsManagerSubsystem::UpdateTimeDelay(USkillNode* _UpdateStartNode)
