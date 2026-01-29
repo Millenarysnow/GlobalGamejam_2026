@@ -11,6 +11,7 @@
 #include "SkillsManagerSubsystem.generated.h"
 
 
+struct FStartNodeInfo;
 class USkillsRuntimeSubsystem;
 class USkillNode;
 enum class ESkillNodeType:uint8;
@@ -26,12 +27,16 @@ class SKILLNODESYSTEM_API USkillsManagerSubsystem : public UGameInstanceSubsyste
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(blueprintCallable)
+	FStartNodeInfo TestMake();
+	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	/**
 	 * 新建技能节点
 	 * @param NodeInfo 技能节点信息
 	 * @return 新建的技能节点
 	 */
+	UFUNCTION(BlueprintCallable) // 测试用
 	USkillNode* NewSkillNode(const FSkillNodeInfo& NodeInfo, TSubclassOf<USkillNode> SkillNodeClass);
 
 	/**
@@ -68,6 +73,8 @@ public:
 
 	void SetCanRun(bool Value);
 	bool GetCanRun();
+
+	TMap<int32, USkillNode*>& GetAllNodes();
 	
 private:
 	UPROPERTY()

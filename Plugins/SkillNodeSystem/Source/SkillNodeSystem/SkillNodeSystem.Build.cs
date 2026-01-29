@@ -26,6 +26,10 @@ public class SkillNodeSystem : ModuleRules
 			new string[]
 			{
 				"Core",
+				"Slate",
+				"SlateCore",
+				"UMG",
+				"InputCore"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -35,9 +39,7 @@ public class SkillNodeSystem : ModuleRules
 			new string[]
 			{
 				"CoreUObject",
-				"Engine",
-				"Slate",
-				"SlateCore",
+				"Engine"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

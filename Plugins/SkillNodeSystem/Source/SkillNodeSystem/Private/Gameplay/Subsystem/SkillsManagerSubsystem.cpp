@@ -9,9 +9,15 @@
 
 #include <random>
 
+#include "Gameplay/Skills/SkillChildType.h"
 #include "Gameplay/Subsystem/SkillsRuntimeSubsystem.h"
 
 const float USkillsManagerSubsystem::AdditionalParamForAttack = 10.0f;
+
+FStartNodeInfo USkillsManagerSubsystem::TestMake()
+{
+	return FStartNodeInfo(EStartNodeType::LeftButton);
+}
 
 void USkillsManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -124,6 +130,11 @@ void USkillsManagerSubsystem::SetCanRun(bool Value)
 bool USkillsManagerSubsystem::GetCanRun()
 {
 	return bCanRun;
+}
+
+TMap<int32, USkillNode*>& USkillsManagerSubsystem::GetAllNodes()
+{
+	return HashToNode;
 }
 
 USkillsRuntimeSubsystem* USkillsManagerSubsystem::GetSkillsRuntimeSubsystem()
