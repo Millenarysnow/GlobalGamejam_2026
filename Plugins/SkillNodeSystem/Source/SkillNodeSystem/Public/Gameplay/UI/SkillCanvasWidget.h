@@ -1,40 +1,52 @@
-﻿// Source/SkillNodeSystem/Public/UI/SkillCanvasWidget.h
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Gameplay/UI/SkillNodeWidget.h"
 #include "SkillCanvasWidget.generated.h"
 
 class UCanvasPanel;
+class USkillUISubsystem;
+class USkillNodeWidget;
 
-UCLASS()
+/**
+ * 技能树画布
+ */
+UCLASS(Abstract)
 class SKILLNODESYSTEM_API USkillCanvasWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
-	// 初始化技能树：创建所有节点 Widget
-	UFUNCTION(BlueprintCallable, Category = "SkillUI")
-	void InitSkillTree();
-
-	// 每一帧绘制连线
+	virtual void NativeConstruct() override;
+    
+	// 绘制连线
 	virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 
+	// 刷新画布（重新生成节点）
+	UFUNCTION(BlueprintCallable)
+	void RefreshCanvas();
+
+	// 通过屏幕坐标更新节点位置（拖拽松手/取消时使用）
+	void ApplyNodeDrop(int32 NodeHashID, const FVector2D& ScreenPos, const FVector2D& DragOffset);
+
 protected:
-	// 处理拖拽放下：更新位置
+	// 处理节点拖拽松手后的位置更新
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
-	// 在蓝图中实现：生成具体的 Node Widget 实例
-	UFUNCTION(BlueprintImplementableEvent, Category = "SkillUI")
-	USkillNodeWidget* CreateNodeWidget(int32 HashID);
+protected:
+	UPROPERTY(meta = (BindWidget))
+	UCanvasPanel* MainCanvas;
 
-	// 在蓝图中实现：获取 Canvas Panel 的引用（用于添加子节点）
-	UFUNCTION(BlueprintImplementableEvent, Category = "SkillUI")
-	UCanvasPanel* GetCanvasPanel() const;
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<USkillNodeWidget> NodeWidgetClass;
 
 private:
-	// 缓存当前画布上的节点 Widget，Key 为 HashID
 	UPROPERTY()
-	TMap<int32, USkillNodeWidget*> NodeWidgetMap;
+	USkillUISubsystem* UISubsystem;
+
+	// 缓存当前创建的 Widget，用于画线时查找坐标
+	UPROPERTY()
+	TMap<int32, USkillNodeWidget*> ActiveNodeWidgets;
+
+	void DrawConnectionLine(const FVector2D& Start, const FVector2D& End, FSlateWindowElementList& OutDrawElements, int32 LayerId) const;
 };

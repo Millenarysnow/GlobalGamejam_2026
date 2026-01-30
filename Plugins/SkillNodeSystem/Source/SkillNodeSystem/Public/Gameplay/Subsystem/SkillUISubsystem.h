@@ -1,12 +1,13 @@
-﻿// Source/SkillNodeSystem/Public/Gameplay/Subsystem/SkillUISubsystem.h
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SkillUISubsystem.generated.h"
 
+class USkillsManagerSubsystem;
+
 /**
- * 管理技能树 UI 数据
+ * 管理技能树 UI 数据 (Controller)
  */
 UCLASS()
 class SKILLNODESYSTEM_API USkillUISubsystem : public UGameInstanceSubsystem
@@ -14,26 +15,26 @@ class SKILLNODESYSTEM_API USkillUISubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
-	static USkillUISubsystem* Get(const UObject* WorldContextObject);
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	// 设置节点坐标
 	UFUNCTION(BlueprintCallable, Category = "SkillUI")
-	void SetNodePosition(int32 HashID, FVector2D Position);
+	USkillsManagerSubsystem* GetManagerSubsystem() const;
 
-	// 获取节点坐标
+	// --- UI 数据管理 (坐标) ---
+    
+	// 获取节点在画布上的位置
 	UFUNCTION(BlueprintCallable, Category = "SkillUI")
-	FVector2D GetNodePosition(int32 HashID);
+	FVector2D GetNodePosition(int32 HashID) const;
 
-	// 移除节点 UI 数据（当逻辑层删除节点时调用，或者定期清理）
+	// 更新节点位置
 	UFUNCTION(BlueprintCallable, Category = "SkillUI")
-	void RemoveNodeUIData(int32 HashID);
-
-	// 清理所有无效的 UI 数据（对比 Manager 中的实际节点）
-	UFUNCTION(BlueprintCallable, Category = "SkillUI")
-	void CleanStaleData();
+	void SetNodePosition(int32 HashID, FVector2D NewPosition);
 
 private:
-	// Key: HashID, Value: Canvas 上的坐标
+	// 存储节点 HashID -> 画布坐标
 	UPROPERTY()
 	TMap<int32, FVector2D> NodePositions;
+    
+	UPROPERTY()
+	USkillsManagerSubsystem* ManagerSubsystem;
 };

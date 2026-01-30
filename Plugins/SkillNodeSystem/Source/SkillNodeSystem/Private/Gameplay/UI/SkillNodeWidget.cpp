@@ -1,35 +1,70 @@
 ﻿#include "Gameplay/UI/SkillNodeWidget.h"
 #include "Gameplay/UI/SkillDragDropOperation.h"
-#include "Gameplay/Subsystem/SkillsManagerSubsystem.h"
+#include "Gameplay/UI/SkillCanvasWidget.h"
+#include "Gameplay/Skills/SkillNode.h"
+#include "Components/TextBlock.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Blueprint/UserWidget.h"
 
-void USkillNodeWidget::InitNode(int32 InHashID)
+void USkillNodeWidget::NativeConstruct()
 {
-	HashID = InHashID;
-	// 这里可以在蓝图中实现 UpdateView，更新图标、名称等
+	Super::NativeConstruct();
 }
 
-USkillNode* USkillNodeWidget::GetSkillNode() const
+void USkillNodeWidget::InitNodeData(USkillNode* InNode)
 {
-	USkillsManagerSubsystem* Manager = USkillsManagerSubsystem::Get(this);
-	return Manager ? Manager->GetSkillNodeByHash(HashID) : nullptr;
+	BindNode = InNode;
+	if (BindNode && NodeNameText)
+	{
+		// 根据类型设置显示名称
+		FString Name = UEnum::GetValueAsString(BindNode->GetNodeType());
+		NodeNameText->SetText(FText::FromString(Name));
+	}
+}
+
+int32 USkillNodeWidget::GetHashID() const
+{
+	return BindNode ? BindNode->GetHashID() : -1;
 }
 
 FReply USkillNodeWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	// 检测左键点击，准备拖拽
+	// 检测左键点击，触发拖拽检测
 	return UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton).NativeReply;
 }
 
 void USkillNodeWidget::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
 {
 	USkillDragDropOperation* DragOp = NewObject<USkillDragDropOperation>();
-	DragOp->HashID = HashID;
-	DragOp->DefaultDragVisual = this; // 拖拽时显示自己，也可以做一个专用的 Visual Widget
-	DragOp->Pivot = EDragPivot::CenterCenter;
+	DragOp->NodeHashID = GetHashID();
 	
-	// 计算鼠标抓取点相对于 Widget 的偏移，防止拖拽时 Widget 瞬移
+	// 计算鼠标相对于 Widget 左上角的偏移，防止拖拽时 Widget 跳动
 	DragOp->DragOffset = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
 
+	UClass* VisualClass = DragVisualClass ? DragVisualClass.Get() : GetClass();
+	UUserWidget* DragVisual = VisualClass ? CreateWidget<UUserWidget>(GetOwningPlayer(), VisualClass) : nullptr;
+	if (USkillNodeWidget* DragNodeWidget = Cast<USkillNodeWidget>(DragVisual))
+	{
+		DragNodeWidget->InitNodeData(BindNode);
+	}
+	DragOp->DefaultDragVisual = DragVisual;
+	DragOp->Pivot = EDragPivot::MouseDown;
+
 	OutOperation = DragOp;
+}
+
+void USkillNodeWidget::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	Super::NativeOnDragCancelled(InDragDropEvent, InOperation);
+
+	USkillDragDropOperation* SkillOp = Cast<USkillDragDropOperation>(InOperation);
+	if (!SkillOp)
+	{
+		return;
+	}
+
+	if (USkillCanvasWidget* OwnerCanvas = GetTypedOuter<USkillCanvasWidget>())
+	{
+		OwnerCanvas->ApplyNodeDrop(SkillOp->NodeHashID, InDragDropEvent.GetScreenSpacePosition(), SkillOp->DragOffset);
+	}
 }
