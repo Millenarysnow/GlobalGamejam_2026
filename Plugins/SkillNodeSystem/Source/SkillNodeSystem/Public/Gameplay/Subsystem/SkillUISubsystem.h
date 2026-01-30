@@ -5,6 +5,7 @@
 #include "SkillUISubsystem.generated.h"
 
 class USkillsManagerSubsystem;
+enum class ESkillNodeType:uint8;
 
 /**
  * 管理技能树 UI 数据 (Controller)
@@ -20,8 +21,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SkillUI")
 	USkillsManagerSubsystem* GetManagerSubsystem() const;
 
+	UFUNCTION(BlueprintCallable)
+	FString GetDescribeTextByType(const ESkillNodeType NodeType);
+
 	// --- UI 数据管理 (坐标) ---
-    
+
 	// 获取节点在画布上的位置
 	UFUNCTION(BlueprintCallable, Category = "SkillUI")
 	FVector2D GetNodePosition(int32 HashID) const;
@@ -34,7 +38,7 @@ private:
 	// 存储节点 HashID -> 画布坐标
 	UPROPERTY()
 	TMap<int32, FVector2D> NodePositions;
-    
+
 	UPROPERTY()
 	USkillsManagerSubsystem* ManagerSubsystem;
 };

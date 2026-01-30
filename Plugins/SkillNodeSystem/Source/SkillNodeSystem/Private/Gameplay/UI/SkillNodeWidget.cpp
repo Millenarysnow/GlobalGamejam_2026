@@ -7,6 +7,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Gameplay/UI/SkillPinWidget.h"
 #include "Components/PanelWidget.h"
+#include "Gameplay/UI/SkillTooltipWidget.h"
 
 void USkillNodeWidget::NativeConstruct()
 {
@@ -46,6 +47,20 @@ void USkillNodeWidget::InitNodeData(USkillNode* InNode)
 			Pin->InitPinData(BindNode, true, OnBranchNode::No);
 			InputPinContainer->AddChild(Pin);
 			InputPinWidget = Pin;
+		}
+	}
+
+	// 【新增】设置 Tooltip
+	if (TooltipWidgetClass)
+	{
+		// 创建 Tooltip 实例
+		USkillTooltipWidget* Tooltip = CreateWidget<USkillTooltipWidget>(GetOwningPlayer(), TooltipWidgetClass);
+		if (Tooltip)
+		{
+			// 填充数据
+			Tooltip->UpdateTooltipData(BindNode);
+			// 设置给当前 Widget (UE 自带的鼠标悬停机制)
+			SetToolTip(Tooltip);
 		}
 	}
 

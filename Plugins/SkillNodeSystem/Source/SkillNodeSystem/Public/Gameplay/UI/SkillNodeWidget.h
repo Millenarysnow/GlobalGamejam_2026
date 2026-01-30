@@ -10,6 +10,7 @@ class USkillUISubsystem;
 class UTextBlock;
 class USkillCanvasWidget;
 class USkillPinWidget;
+class USkillTooltipWidget;
 
 /**
  * 单个节点的 UI 显示
@@ -74,4 +75,9 @@ protected: // 引脚
 
 	UPROPERTY()
 	TMap<OnBranchNode, USkillPinWidget*> OutputPinWidgets;
+
+protected:
+	// 【新增】Tooltip Widget 类
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<USkillTooltipWidget> TooltipWidgetClass;
 };

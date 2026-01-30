@@ -2,6 +2,8 @@
 #include "Gameplay/Subsystem/SkillsManagerSubsystem.h"
 #include "Engine/GameInstance.h"
 
+#include "Gameplay/Skills/SkillType.h"
+
 void USkillUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
@@ -11,6 +13,31 @@ void USkillUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 USkillsManagerSubsystem* USkillUISubsystem::GetManagerSubsystem() const
 {
 	return ManagerSubsystem;
+}
+
+FString USkillUISubsystem::GetDescribeTextByType(const ESkillNodeType NodeType)
+{
+	switch (NodeType)
+	{
+		case ESkillNodeType::NullNode:
+			return FString("Null Node: No functionality.");
+		case ESkillNodeType::StartNode:
+			return FString("Start Node: Entry point of the skill.");
+		case ESkillNodeType::GenerateNode:
+			return FString("Generate Node: Creates entities or effects.");
+		case ESkillNodeType::BuffNode:
+			return FString("Buff Node: Applies buffs or debuffs.");
+		case ESkillNodeType::BranchNode:
+			return FString("Branch Node: Creates conditional branches.");
+		case ESkillNodeType::LoopStartNode:
+			return FString("Loop Start Node: Begins a loop structure.");
+		case ESkillNodeType::LoopEndNode:
+			return FString("Loop End Node: Ends a loop structure.");
+		case ESkillNodeType::ParamNode:
+			return FString("Param Node: Modifies parameters.");
+		default:
+			return FString("Unknown Node Type.");
+	}
 }
 
 FVector2D USkillUISubsystem::GetNodePosition(int32 HashID) const
