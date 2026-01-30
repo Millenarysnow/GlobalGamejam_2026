@@ -49,7 +49,7 @@ enum class EBuffType:uint8 // 增益具体类型
 	None = 0,
 	Accelerate,
 	Strength,
-	Size,
+	Size, // 弃用
 	AttackSpeed
 };
 

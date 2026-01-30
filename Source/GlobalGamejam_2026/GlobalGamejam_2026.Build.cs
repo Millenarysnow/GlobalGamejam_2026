@@ -8,7 +8,7 @@ public class GlobalGamejam_2026 : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "SkillNodeSystem" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

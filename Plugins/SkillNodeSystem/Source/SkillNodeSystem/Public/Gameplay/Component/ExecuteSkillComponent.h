@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-#include "Components/ActorComponent.h"
+#include "Components/SceneComponent.h"
 
 #include "Gameplay/Skills/SkillNode.h"
 
@@ -14,7 +14,7 @@
 class USkillNode;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class SKILLNODESYSTEM_API UExecuteSkillComponent : public UActorComponent
+class SKILLNODESYSTEM_API UExecuteSkillComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
