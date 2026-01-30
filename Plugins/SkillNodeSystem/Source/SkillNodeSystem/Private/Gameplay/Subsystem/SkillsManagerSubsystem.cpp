@@ -19,6 +19,11 @@ FStartNodeInfo USkillsManagerSubsystem::TestMake()
 	return FStartNodeInfo(EStartNodeType::LeftButton);
 }
 
+FGenerateNodeInfo USkillsManagerSubsystem::TestMake2()
+{
+	return FGenerateNodeInfo(EGeneratedType::StandardBullet, 50.f, 200.f);
+}
+
 void USkillsManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);

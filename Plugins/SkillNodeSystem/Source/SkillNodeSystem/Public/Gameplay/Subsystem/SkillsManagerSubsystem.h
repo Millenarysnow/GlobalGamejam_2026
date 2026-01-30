@@ -12,6 +12,7 @@
 
 
 struct FStartNodeInfo;
+struct FGenerateNodeInfo;
 class USkillsRuntimeSubsystem;
 class USkillNode;
 enum class ESkillNodeType:uint8;
@@ -29,6 +30,9 @@ class SKILLNODESYSTEM_API USkillsManagerSubsystem : public UGameInstanceSubsyste
 public:
 	UFUNCTION(blueprintCallable)
 	FStartNodeInfo TestMake();
+
+	UFUNCTION(BlueprintCallable)
+	FGenerateNodeInfo TestMake2();
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	/**

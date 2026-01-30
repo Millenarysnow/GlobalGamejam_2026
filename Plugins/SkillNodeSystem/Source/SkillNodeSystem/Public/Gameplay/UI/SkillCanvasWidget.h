@@ -48,5 +48,5 @@ private:
 	UPROPERTY()
 	TMap<int32, USkillNodeWidget*> ActiveNodeWidgets;
 
-	void DrawConnectionLine(const FVector2D& Start, const FVector2D& End, FSlateWindowElementList& OutDrawElements, int32 LayerId) const;
+	void DrawConnectionLine(const FGeometry& AllottedGeometry, const FVector2D& Start, const FVector2D& End, FSlateWindowElementList& OutDrawElements, int32 LayerId) const;
 };

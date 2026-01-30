@@ -32,6 +32,7 @@ struct FBuffNodeInfo : public FSkillNodeInfo
 
 	FBuffNodeInfo(EBuffType _BuffType, float _BuffDurationTime, float _BuffValue, float _DelayTime = 100.0f, int32 _OutPinCount = 1);
 };
+
 USTRUCT(BlueprintType)
 struct FGenerateNodeInfo : public FSkillNodeInfo
 

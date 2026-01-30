@@ -8,6 +8,9 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 
+#include "Gameplay/UI/SkillDragDropOperation.h" // 节点移动的Drop
+#include "Gameplay/UI/SkillConnectionDragDropOperation.h" // 连线的Drop
+
 void USkillCanvasWidget::NativeConstruct()
 {
     Super::NativeConstruct();
@@ -90,9 +93,11 @@ int32 USkillCanvasWidget::NativePaint(const FPaintArgs& Args, const FGeometry& A
 {
     int32 MaxLayerId = Super::NativePaint(Args, AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
 
-    if (!UISubsystem) return MaxLayerId;
+    if (!UISubsystem || !MainCanvas) return MaxLayerId;
     USkillsManagerSubsystem* Manager = UISubsystem->GetManagerSubsystem();
     if (!Manager) return MaxLayerId;
+
+    const FGeometry& CanvasGeometry = MainCanvas->GetCachedGeometry();
 
     // 遍历所有节点画线
     for (auto& Elem : ActiveNodeWidgets)
@@ -107,44 +112,51 @@ int32 USkillCanvasWidget::NativePaint(const FPaintArgs& Args, const FGeometry& A
         ParentNode->ForEachChild([&](USkillNode* ChildNode)
         {
             if (!ChildNode) return;
-            
-            if (USkillNodeWidget* ChildWidgetPtr = ActiveNodeWidgets.FindRef(ChildNode->GetHashID()))
+		
+            if (USkillNodeWidget* ChildWidget = ActiveNodeWidgets.FindRef(ChildNode->GetHashID()))
             {
-                // 获取 Widget 在 Canvas 中的几何中心
-                // 注意：这里需要考虑 Widget 的实际位置
-                FVector2D ParentPos = UISubsystem->GetNodePosition(ParentID);
-                FVector2D ChildPos = UISubsystem->GetNodePosition(ChildNode->GetHashID());
+                // 1. 确定输出引脚类型 (Branch logic)
+                OnBranchNode OutputBranchType = OnBranchNode::No;
+                if (ParentNode->GetNodeType() == ESkillNodeType::BranchNode)
+                {
+                    if (ChildNode == ParentNode->GetBranchTrueNode()) OutputBranchType = OnBranchNode::TrU;
+                    else if (ChildNode == ParentNode->GetBranchFalseNode()) OutputBranchType = OnBranchNode::FaL;
+                }
 
-                // 假设 Size 是 150x80，连接点设为 Parent 底部中心 -> Child 顶部中心
-                FVector2D StartPoint = ParentPos + FVector2D(75.f, 80.f); 
-                FVector2D EndPoint = ChildPos + FVector2D(75.f, 0.f);
+                // 2. 获取屏幕绝对坐标
+                FVector2D StartScreenPos = ParentWidget->GetOutputPinPosition(OutputBranchType);
+                FVector2D EndScreenPos = ChildWidget->GetInputPinPosition();
 
-                DrawConnectionLine(StartPoint, EndPoint, OutDrawElements, LayerId);
+                // 3. 转换为 Canvas 的局部坐标
+                FVector2D StartLocal = CanvasGeometry.AbsoluteToLocal(StartScreenPos);
+                FVector2D EndLocal = CanvasGeometry.AbsoluteToLocal(EndScreenPos);
+
+                // 4. 画线
+                DrawConnectionLine(CanvasGeometry, StartLocal, EndLocal, OutDrawElements, LayerId);
             }
         });
     }
+	
+    // 【新增】如果正在拖拽连线，画一条临时线（可选，增强体验）
+    // 这通常需要监听 DragDrop 事件或绑定一个变量，这里暂时略过，先保证基础连线显示
 
     return MaxLayerId;
 }
 
-void USkillCanvasWidget::DrawConnectionLine(const FVector2D& Start, const FVector2D& End, FSlateWindowElementList& OutDrawElements, int32 LayerId) const
+void USkillCanvasWidget::DrawConnectionLine(const FGeometry& AllottedGeometry, const FVector2D& Start, const FVector2D& End, FSlateWindowElementList& OutDrawElements, int32 LayerId) const
 {
     TArray<FVector2D> Points;
     Points.Add(Start);
-    
-    // 简单的贝塞尔曲线模拟：添加两个控制点
-    float TangentLength = FMath::Abs(End.Y - Start.Y) * 0.5f;
-    FVector2D ControlPoint1 = Start + FVector2D(0.f, TangentLength);
-    FVector2D ControlPoint2 = End - FVector2D(0.f, TangentLength);
-
-    // 这里简化为直接画直线，如果想画曲线可以使用 FPaintContext 或 Spline 算法生成点集
-    // 为演示简洁，这里画直线
     Points.Add(End);
 
+    // 【核心修复】
+    // 使用 AllottedGeometry.ToPaintGeometry() 代替 FPaintGeometry()。
+    // 这会将 Canvas 的位置、缩放（DPI Scale）应用到绘制操作中。
+    // 配合传入的 Local 坐标，线条就能准确贴合在 Widget 上了。
     FSlateDrawElement::MakeLines(
         OutDrawElements,
         LayerId,
-        FPaintGeometry(),
+        AllottedGeometry.ToPaintGeometry(),
         Points,
         ESlateDrawEffect::None,
         FLinearColor::White,
