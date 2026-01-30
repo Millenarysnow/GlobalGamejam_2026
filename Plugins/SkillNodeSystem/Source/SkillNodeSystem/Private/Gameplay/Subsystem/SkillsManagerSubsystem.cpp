@@ -83,6 +83,8 @@ void USkillsManagerSubsystem::DeleteSkillNode(USkillNode* Node, OnBranchNode Bra
 
 bool USkillsManagerSubsystem::ConnectNode(USkillNode* ParentNode, USkillNode* ChildNode, OnBranchNode Branch)
 {
+	//BUG: 没有检测连接是否成环
+	
 	if (!ParentNode || !ChildNode) return false;
 	if (ParentNode->GetHashID() == ChildNode->GetHashID()) return false;
 
