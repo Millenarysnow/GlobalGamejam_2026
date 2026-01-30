@@ -41,12 +41,12 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	/**
-	 * 启动所有开始节点
+	 * 解锁所有开始节点
 	 */
 	void LaunchAllStartNode();
 
 	/**
-	 * 停止所有开始节点
+	 * 锁定所有开始节点
 	 */
 	void StopAllStartNode();
 
