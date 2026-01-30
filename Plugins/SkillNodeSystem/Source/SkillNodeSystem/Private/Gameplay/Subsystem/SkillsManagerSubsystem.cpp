@@ -91,6 +91,26 @@ bool USkillsManagerSubsystem::ConnectNode(USkillNode* ParentNode, USkillNode* Ch
 	{
 		DisconnectNode(ChildNode->GetParentNode(), ChildNode, OnBranchNode::No);
 	}
+
+	// 处理Branch节点特殊情况
+	// 如果Parent是Branch节点，ChildNode已经连接到另一个分支上，先断开连接
+	if (ParentNode->GetNodeType() == ESkillNodeType::BranchNode)
+	{
+		if (Branch == OnBranchNode::TrU)
+		{
+			if (USkillNode* OldTrueNode = ParentNode->GetBranchTrueNode())
+			{
+				DisconnectNode(ParentNode, OldTrueNode, OnBranchNode::TrU);
+			}
+		}
+		else if (Branch == OnBranchNode::No)
+		{
+			if (USkillNode* OldFalseNode = ParentNode->GetBranchFalseNode())
+			{
+				DisconnectNode(ParentNode, OldFalseNode, OnBranchNode::FaL);
+			}
+		}
+	}
 	
 	if (!ParentNode->AddChildNode(ChildNode, Branch)) return false;
 	

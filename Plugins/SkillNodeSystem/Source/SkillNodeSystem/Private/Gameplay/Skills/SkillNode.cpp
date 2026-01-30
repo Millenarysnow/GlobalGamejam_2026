@@ -130,23 +130,17 @@ void USkillNode::Delivery(TSharedPtr<FSkillExecutionContext> Context)
 	}
 	else
 	{
-		/*
-		if (Branch(Target))
-		{
-			if (BranchTrueNode)
-				BranchTrueNode->Trigger(Target);
-		}
-		else
-		{
-			if (BranchFalseNode)
-				BranchFalseNode->Trigger(Target);
-		}
-		*/
+		bool bResult = Branch(TargetActor);
 
-		for (const auto& Element : ChildNodes)
+		USkillNode* NextNode = bResult ? BranchTrueNode : BranchFalseNode;
+
+		if (NextNode)
 		{
+			/**
+			 * 这里传拷贝是因为考虑到后续扩展，可能有并行需求
+			 */
 			TSharedPtr<FSkillExecutionContext> NextContext = MakeShared<FSkillExecutionContext>(*Context);
-			Element->Trigger(NextContext);
+			NextNode->Trigger(NextContext);
 		}
 	}
 }
