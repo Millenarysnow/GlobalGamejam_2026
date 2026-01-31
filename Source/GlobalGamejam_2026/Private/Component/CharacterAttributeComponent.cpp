@@ -1,5 +1,7 @@
 ﻿#include "Component/CharacterAttributeComponent.h"
 
+#include "Gameplay/Subsystem/DirectorSubsystem.h"
+
 
 UCharacterAttributeComponent::UCharacterAttributeComponent()
 {
@@ -65,7 +67,18 @@ void UCharacterAttributeComponent::ModifyHealth(float DeltaValue)
 
 	CurrentHealth = FMath::Clamp(CurrentHealth + DeltaValue, 0.0f, MaxHealth);
 
-	// 这里可以添加死亡广播，例如：
-	// if (CurrentHealth <= 0.0f) { OnDeath.Broadcast(); }
+	// 死亡逻辑
+	
+	if (CurrentHealth <= 0.5f)
+	{
+		// 玩家死亡
+
+		if (GetOwner()->ActorHasTag("Player"))
+		{
+			UDirectorSubsystem* Director = GetOwner()->GetGameInstance()->GetSubsystem<UDirectorSubsystem>();
+
+			Director->PlayerDead();
+		}
+	}
 }
 

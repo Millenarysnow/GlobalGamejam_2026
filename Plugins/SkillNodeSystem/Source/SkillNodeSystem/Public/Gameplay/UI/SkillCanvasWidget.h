@@ -29,6 +29,8 @@ public:
 	// 通过屏幕坐标更新节点位置（拖拽松手/取消时使用）
 	void ApplyNodeDrop(int32 NodeHashID, const FVector2D& ScreenPos, const FVector2D& DragOffset);
 
+	void ClearNode();
+
 protected:
 	// 处理节点拖拽松手后的位置更新
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;

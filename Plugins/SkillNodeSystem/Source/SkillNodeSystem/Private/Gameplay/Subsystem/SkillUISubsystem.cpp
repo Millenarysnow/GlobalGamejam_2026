@@ -3,6 +3,7 @@
 #include "Engine/GameInstance.h"
 
 #include "Gameplay/Skills/SkillType.h"
+#include "Gameplay/UI/SkillCanvasWidget.h"
 
 void USkillUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -40,6 +41,16 @@ FString USkillUISubsystem::GetDescribeTextByType(const ESkillNodeType NodeType)
 	}
 }
 
+void USkillUISubsystem::ClearNode()
+{
+	NodePositions.Empty();
+
+	if (SkillCanvasWidget)
+	{
+		SkillCanvasWidget->ClearNode();
+	}
+}
+
 FVector2D USkillUISubsystem::GetNodePosition(int32 HashID) const
 {
 	if (NodePositions.Contains(HashID))
@@ -52,4 +63,9 @@ FVector2D USkillUISubsystem::GetNodePosition(int32 HashID) const
 void USkillUISubsystem::SetNodePosition(int32 HashID, FVector2D NewPosition)
 {
 	NodePositions.Add(HashID, NewPosition);
+}
+
+void USkillUISubsystem::RegisterSkillCanvasWidget(USkillCanvasWidget* InWidget)
+{
+	SkillCanvasWidget = InWidget;
 }

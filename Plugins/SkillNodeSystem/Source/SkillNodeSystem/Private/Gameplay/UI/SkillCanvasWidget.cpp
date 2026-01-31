@@ -17,6 +17,8 @@ void USkillCanvasWidget::NativeConstruct()
     UISubsystem = GetGameInstance()->GetSubsystem<USkillUISubsystem>();
     RefreshCanvas();
 
+    UISubsystem->RegisterSkillCanvasWidget(this);
+
     UE_LOG(LogTemp, Log, TEXT("SkillCanvasWidget Constructed and Canvas Refreshed."));
 }
 
@@ -78,6 +80,16 @@ void USkillCanvasWidget::ApplyNodeDrop(int32 NodeHashID, const FVector2D& Screen
             CanvasSlot->SetPosition(NewPos);
         }
     }
+}
+
+void USkillCanvasWidget::ClearNode()
+{
+    for (auto& Elem : ActiveNodeWidgets)
+    {
+        Elem.Value->RemoveFromParent();
+    }
+
+    ActiveNodeWidgets.Empty();
 }
 
 bool USkillCanvasWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)

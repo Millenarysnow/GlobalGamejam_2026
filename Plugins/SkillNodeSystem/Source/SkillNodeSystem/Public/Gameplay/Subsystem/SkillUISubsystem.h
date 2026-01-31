@@ -4,6 +4,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SkillUISubsystem.generated.h"
 
+class USkillCanvasWidget;
 class USkillsManagerSubsystem;
 enum class ESkillNodeType:uint8;
 
@@ -24,6 +25,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FString GetDescribeTextByType(const ESkillNodeType NodeType);
 
+	UFUNCTION(BlueprintCallable)
+	void ClearNode();
+
 	// --- UI 数据管理 (坐标) ---
 
 	// 获取节点在画布上的位置
@@ -33,6 +37,15 @@ public:
 	// 更新节点位置
 	UFUNCTION(BlueprintCallable, Category = "SkillUI")
 	void SetNodePosition(int32 HashID, FVector2D NewPosition);
+
+	// --- 关联的 Widget ---
+	// 为了清空节点
+	
+	UPROPERTY()
+	USkillCanvasWidget* SkillCanvasWidget;
+
+	UFUNCTION()
+	void RegisterSkillCanvasWidget(USkillCanvasWidget* InWidget);
 
 private:
 	// 存储节点 HashID -> 画布坐标

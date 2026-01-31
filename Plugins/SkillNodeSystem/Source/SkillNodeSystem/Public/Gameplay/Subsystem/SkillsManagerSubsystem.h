@@ -66,6 +66,8 @@ public:
 	 * @param Branch 子节点是否连接在父节点的分支上
 	 */
 	void DisconnectNode(USkillNode* ParentNode, USkillNode* ChildNode, OnBranchNode Branch = OnBranchNode::No);
+
+	void ClearAllNode();
 	
 	USkillNode* GetSkillNodeByHash(const int32 HashID) const;
 

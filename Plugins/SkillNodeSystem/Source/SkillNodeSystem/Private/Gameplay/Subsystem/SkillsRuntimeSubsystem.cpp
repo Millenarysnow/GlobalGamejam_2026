@@ -58,6 +58,11 @@ void USkillsRuntimeSubsystem::TriggerStartNode(EStartNodeType StartNodeType)
 	}
 }
 
+void USkillsRuntimeSubsystem::ClearNode()
+{
+	StartSkillNodeByMap.Empty();
+}
+
 USkillsRuntimeSubsystem* USkillsRuntimeSubsystem::Get(const UObject* WorldContextObject)
 {
 	if (!WorldContextObject) return nullptr;

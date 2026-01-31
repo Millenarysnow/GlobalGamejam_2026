@@ -137,6 +137,13 @@ void USkillsManagerSubsystem::DisconnectNode(USkillNode* ParentNode, USkillNode*
 	DfsUpdateForwardParam(ChildNode);
 }
 
+void USkillsManagerSubsystem::ClearAllNode()
+{
+	HashToNode.Empty();
+
+	SkillsRuntimeSubsystem->ClearNode();
+}
+
 USkillNode* USkillsManagerSubsystem::GetSkillNodeByHash(const int32 _HashID) const
 {
 	return HashToNode.Contains(_HashID) ? HashToNode[_HashID] : nullptr;

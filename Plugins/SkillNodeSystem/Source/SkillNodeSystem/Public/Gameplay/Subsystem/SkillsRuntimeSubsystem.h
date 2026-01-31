@@ -55,6 +55,8 @@ public:
 	 */
 	void TriggerStartNode(EStartNodeType StartNodeType);
 
+	void ClearNode();
+
 	UFUNCTION()
 	static USkillsRuntimeSubsystem* Get(const UObject* WorldContextObject);
 
