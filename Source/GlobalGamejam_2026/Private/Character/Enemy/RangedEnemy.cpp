@@ -26,6 +26,8 @@ void ARangedEnemy::Tick(float DeltaTime)
 	float DistSq = FVector::DistSquared(GetActorLocation(), Target->GetActorLocation());
 	if (DistSq <= FMath::Square(AttackRange) && AttackCooldown <= 0.f)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow,
+			*FString::Printf(TEXT("RangedEnemy: Shooting at Target!")));
 		Shoot(Target);
 	}
 }

@@ -44,6 +44,9 @@ void AEnemy::Tick(float DeltaTime)
 	if (AttributeComponent && GetCharacterMovement())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = AttributeComponent->GetSpeed();
+
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan,
+			*FString::Printf(TEXT("Enemy: Current Speed : %.2f"), GetCharacterMovement()->MaxWalkSpeed) );
 	}
 }
 
