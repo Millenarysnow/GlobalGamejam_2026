@@ -44,12 +44,6 @@ void AGeneratedBullet::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	// 1. 敌我判断 (命中敌人扣血，命中友军无视)
 	if (IsEnemy(OtherActor))
 	{
-		// 尝试通过 AttributeComponent 扣血
-		// if (UCharacterAttributeComponent* AttrComp = OtherActor->FindComponentByClass<UCharacterAttributeComponent>())
-		// {
-		// 	AttrComp->ModifyHealth(-SkillDamage);
-		// }
-
 		// 尝试通过接口调用
 		if (OtherActor->Implements<UOnHit>())
 		{

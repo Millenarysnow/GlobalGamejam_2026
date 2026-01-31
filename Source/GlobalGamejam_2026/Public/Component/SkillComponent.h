@@ -8,17 +8,24 @@
 #include "SkillComponent.generated.h"
 
 
+class AGeneratedExplosion;
+class AGeneratedBullet;
 class UCharacterAttributeComponent;
-class AGeneratedActor;
 
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(Custom), Blueprintable, meta=(BlueprintSpawnableComponent))
 class GLOBALGAMEJAM_2026_API USkillComponent : public UExecuteSkillComponent
 {
 	GENERATED_BODY()
 
 public:
 	USkillComponent();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	TSubclassOf<AGeneratedBullet> GeneratedBulletClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	TSubclassOf<AGeneratedExplosion> GeneratedExplosionClass;
 
 #pragma region SkillInterface
 

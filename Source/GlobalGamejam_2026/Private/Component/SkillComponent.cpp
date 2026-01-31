@@ -57,6 +57,12 @@ void USkillComponent::GenerateItem(FNodeGenerateValueFinal GenerateValueFinal)
 	
 	if (!OwnerActor) return;
 
+	if (!GeneratedBulletClass || !GeneratedExplosionClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Generated classes not set in SkillComponent!"));
+		return;
+	}
+	
 	UWorld* World = GetWorld();
 	if (!World) return;
 
@@ -76,12 +82,12 @@ void USkillComponent::GenerateItem(FNodeGenerateValueFinal GenerateValueFinal)
 	{
 	case EGeneratedType::StandardBullet:
 	case EGeneratedType::EnhancedBullet:
-		SpawnedActor = World->SpawnActor<AGeneratedBullet>(AGeneratedBullet::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		SpawnedActor = World->SpawnActor<AGeneratedBullet>(GeneratedBulletClass, SpawnLocation, SpawnRotation, SpawnParams);
 		break;
 
 	case EGeneratedType::Explosion:
 		// 爆炸通常在原地或指定位置生成，这里暂定为前方
-		SpawnedActor = World->SpawnActor<AGeneratedExplosion>(AGeneratedExplosion::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		SpawnedActor = World->SpawnActor<AGeneratedExplosion>(GeneratedExplosionClass, SpawnLocation, SpawnRotation, SpawnParams);
 		break;
 
 	case EGeneratedType::None:

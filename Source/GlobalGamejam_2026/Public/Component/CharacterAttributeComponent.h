@@ -9,7 +9,7 @@
 /**
  * 用于挂载在角色和敌人身上，存储其属性信息
  */
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(Custom), Blueprintable, meta=(BlueprintSpawnableComponent))
 class GLOBALGAMEJAM_2026_API UCharacterAttributeComponent : public USceneComponent
 {
 	GENERATED_BODY()
