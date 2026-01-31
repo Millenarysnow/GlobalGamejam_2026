@@ -46,6 +46,14 @@ void UVNMainWidget::HandleTextUpdate(const FString& Text, int32 SpeakerID, int32
 {
     // 处理背景图、立绘的更新
 
+    /**
+     * BgID 和 CharID 的约定：
+     * 0 = 隐藏该图像
+     * 1 = 第一张图片
+     * 2 = 第二张图片
+     * ...
+     */
+
     if (BgID < 0 || BgID > BackgroundImages.Num())
     {
         UE_LOG(LogTemp, Error, TEXT("Invalid BgID: %d"), BgID);
