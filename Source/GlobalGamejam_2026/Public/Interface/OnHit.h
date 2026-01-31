@@ -1,12 +1,9 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "OnHit.generated.h"
 
-// This class does not need to be modified.
 UINTERFACE()
 class UOnHit : public UInterface
 {
@@ -20,6 +17,10 @@ class GLOBALGAMEJAM_2026_API IOnHit
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	// 受击函数：传入伤害量和施法者
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnGetHit(float Damage, AActor* InstigatorActor);
+
+	virtual void OnGetHit_Implementation(float Damage, AActor* InstigatorActor) = 0;
 };

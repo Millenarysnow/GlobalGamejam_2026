@@ -1,10 +1,10 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GeneratedActor.generated.h"
+
+class USkillComponent;
 
 UCLASS()
 class GLOBALGAMEJAM_2026_API AGeneratedActor : public AActor
@@ -12,14 +12,22 @@ class GLOBALGAMEJAM_2026_API AGeneratedActor : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AGeneratedActor();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	// 初始化生成物数据
+	// 生成时一定要调用，否则无法获取到来源技能组件和伤害等信息
+	virtual void InitGeneratedActor(USkillComponent* InSkillComponent, float InDamage, float InRadius);
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
+	USkillComponent* SourceSkillComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
+	float SkillDamage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
+	float SkillRadius;
+
+	// 敌我判断逻辑
+	bool IsEnemy(AActor* TargetActor) const;
 };

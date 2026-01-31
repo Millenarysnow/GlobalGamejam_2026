@@ -1,39 +1,47 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "Character/CharacterBase.h"
+﻿#include "Character/CharacterBase.h"
 
 #include "Component/CharacterAttributeComponent.h"
 #include "Component/SkillComponent.h"
 
 
-// Sets default values
 ACharacterBase::ACharacterBase()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	USkillComponent* SkillComponent = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComponent"));
-	SkillComponent->SetupAttachment(RootComponent);
-
-	UCharacterAttributeComponent* AttributeComponent = CreateDefaultSubobject<UCharacterAttributeComponent>(TEXT("AttributeComponent"));
-	AttributeComponent->SetupAttachment(RootComponent);
 }
 
-// Called when the game starts or when spawned
+void ACharacterBase::OnGetHit_Implementation(float Damage, AActor* InstigatorActor)
+{
+	if (AttributeComponent)
+	{
+		AttributeComponent->ModifyHealth(-Damage);
+	}
+}
+
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	SkillComponent = NewObject<USkillComponent>(this, SkillComponentClass);
+	if (SkillComponent) 
+	{
+		SkillComponent->RegisterComponent();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to create SkillComponent!"));
+	}
+
+	AttributeComponent = NewObject<UCharacterAttributeComponent>(this, AttributeComponentClass);
+	if (AttributeComponent)
+	{
+		AttributeComponent->RegisterComponent();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to create CharacterAttributeComponent!"));
+	}
 }
 
-// Called every frame
-void ACharacterBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-// Called to bind functionality to input
 void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);

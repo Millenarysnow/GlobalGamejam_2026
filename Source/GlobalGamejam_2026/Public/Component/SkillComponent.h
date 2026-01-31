@@ -9,6 +9,7 @@
 
 
 class UCharacterAttributeComponent;
+class AGeneratedActor;
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -32,6 +33,8 @@ public:
 
 	// 生成生成物
 	virtual void GenerateItem(FNodeGenerateValueFinal GenerateValueFinal) override;
+
+	void ReportSkillHit(AActor* HitTarget);
 
 #pragma endregion
 

@@ -1,11 +1,14 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interface/OnHit.h"
 #include "CharacterBase.generated.h"
+
+
+class USkillComponent;
+class UCharacterAttributeComponent;
+
 
 UCLASS()
 class GLOBALGAMEJAM_2026_API ACharacterBase : public ACharacter, public IOnHit
@@ -13,17 +16,26 @@ class GLOBALGAMEJAM_2026_API ACharacterBase : public ACharacter, public IOnHit
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ACharacterBase();
 
+	virtual void OnGetHit_Implementation(float Damage, AActor* InstigatorActor) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<USkillComponent> SkillComponentClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UCharacterAttributeComponent> AttributeComponentClass;
+	
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+protected:
+	UPROPERTY()
+	USkillComponent* SkillComponent;
+
+	UPROPERTY()
+	UCharacterAttributeComponent* AttributeComponent;
 };

@@ -47,6 +47,8 @@ public:
 	void ModifySpeedRate(float rate);
 	void ModifyDamageRate(float rate);
 	void ModifyAttackSpeedRate(float rate);
+
+	void ModifyHealth(float DeltaValue);
 	
 #pragma endregion
 

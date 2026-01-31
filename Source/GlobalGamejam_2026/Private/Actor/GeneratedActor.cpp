@@ -1,26 +1,40 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "Actor/GeneratedActor.h"
 
 
-#include "Actor/GeneratedActor.h"
-
-
-// Sets default values
 AGeneratedActor::AGeneratedActor()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+
+	SkillDamage = 0.f;
+	SkillRadius = 0.f;
+	SourceSkillComponent = nullptr;
 }
 
-// Called when the game starts or when spawned
-void AGeneratedActor::BeginPlay()
+void AGeneratedActor::InitGeneratedActor(USkillComponent* InSkillComponent, float InDamage, float InRadius)
 {
-	Super::BeginPlay();
-	
+	SourceSkillComponent = InSkillComponent;
+	SkillDamage = InDamage;
+	SkillRadius = InRadius;
 }
 
-// Called every frame
-void AGeneratedActor::Tick(float DeltaTime)
+bool AGeneratedActor::IsEnemy(AActor* TargetActor) const
 {
-	Super::Tick(DeltaTime);
+	if (!TargetActor || !GetOwner()) return false;
+
+	// TODO: 确认敌我关系的逻辑（是否有友伤）
+
+	// Tag 区分
+	// 如果 Owner 是 Player，则 Target 有 Enemy 标签时为敌人
+	if (GetOwner()->ActorHasTag(FName("Player")) && TargetActor->ActorHasTag(FName("Enemy")))
+	{
+		return true;
+	}
+	// 如果 Owner 是 Enemy，则 Target 有 Player 标签时为敌人
+	if (GetOwner()->ActorHasTag(FName("Enemy")) && TargetActor->ActorHasTag(FName("Player")))
+	{
+		return true;
+	}
+
+	return false;
 }
 

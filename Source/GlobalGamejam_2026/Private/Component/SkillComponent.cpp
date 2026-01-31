@@ -3,6 +3,8 @@
 
 #include "Component/SkillComponent.h"
 
+#include "Actor/Generated/GeneratedBullet.h"
+#include "Actor/Generated/GeneratedExplosion.h"
 #include "Component/CharacterAttributeComponent.h"
 
 
@@ -51,7 +53,55 @@ void USkillComponent::EffectBuff(FNodeBuffValueFinal BuffValueFinal)
 
 void USkillComponent::GenerateItem(FNodeGenerateValueFinal GenerateValueFinal)
 {
-	//TODO : 实现生成物逻辑
+	// BUG: 当前生成物的回调是通过发射对象身上的 SkillComponent 来触发的，会导致如果发射对象提前死亡，生成物的回调将无法触发
+	
+	if (!OwnerActor) return;
+
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	// 确定生成位置和旋转 (基于 Owner 的朝向)
+	FVector SpawnLocation = OwnerActor->GetActorLocation() + OwnerActor->GetActorForwardVector() * 100.0f; // 稍微靠前一点生成
+	FRotator SpawnRotation = OwnerActor->GetActorRotation();
+
+	AGeneratedActor* SpawnedActor = nullptr;
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = OwnerActor;
+	SpawnParams.Instigator = Cast<APawn>(OwnerActor);
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	// 根据类型生成对应的 Actor
+	switch (GenerateValueFinal.GeneratedType)
+	{
+	case EGeneratedType::StandardBullet:
+	case EGeneratedType::EnhancedBullet:
+		SpawnedActor = World->SpawnActor<AGeneratedBullet>(AGeneratedBullet::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		break;
+
+	case EGeneratedType::Explosion:
+		// 爆炸通常在原地或指定位置生成，这里暂定为前方
+		SpawnedActor = World->SpawnActor<AGeneratedExplosion>(AGeneratedExplosion::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		break;
+
+	case EGeneratedType::None:
+	default:
+		break;
+	}
+
+	// 初始化生成物数据
+	if (SpawnedActor)
+	{
+		SpawnedActor->InitGeneratedActor(this, GenerateValueFinal.Damage, GenerateValueFinal.Radius);
+	}
+}
+
+void USkillComponent::ReportSkillHit(AActor* HitTarget)
+{
+	if (HitTarget)
+	{
+		TriggerSkillChain(HitTarget);
+	}
 }
 
 void USkillComponent::BeginPlay()
