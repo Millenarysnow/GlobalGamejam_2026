@@ -123,7 +123,6 @@ void USkillComponent::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("Owner Actor has no CharacterAttributeComponent!"));
 }
 
-
 void USkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
