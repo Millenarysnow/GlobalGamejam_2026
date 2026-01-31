@@ -5,6 +5,7 @@
 
 #include "VNMainWidget.generated.h"
 
+class UImage;
 class UTextBlock;
 class UVNGameSubsystem;
 
@@ -22,6 +23,12 @@ public:
 	void OnScreenClicked();
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<UTexture2D*> BackgroundImages; // 背景图数组
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<UTexture2D*> CharacterImages; // 角色立绘数组
+	
 	// --- 事件回调 (从 Subsystem 接收) ---
 	UFUNCTION()
 	void HandleTextUpdate(const FString& Text, int32 SpeakerID, int32 BgID, int32 CharID);
@@ -37,6 +44,12 @@ protected:
 	// --- 变量 ---
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Text_Dialogue; // 绑定 UMG 中的文本框
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* Image_Background; // 绑定 UMG 中的背景图
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* Image_Character; // 绑定 UMG 中的角色立绘
 
 	FTimerHandle TypewriterTimer;
 	FString TargetText;

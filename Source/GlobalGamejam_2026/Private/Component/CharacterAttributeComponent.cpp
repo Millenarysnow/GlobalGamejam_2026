@@ -26,7 +26,6 @@ void UCharacterAttributeComponent::BeginPlay()
 	CurrentDamage = InitDamage;
 	CurrentAttackSpeed = InitAttackSpeed;
 	CurrentHealth = InitHealth;
-	
 }
 
 // Called every frame

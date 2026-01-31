@@ -2,6 +2,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "VNGameSubsystem.h"
+#include "Components/Image.h"
 #include "Components/TextBlock.h"
 
 void UVNMainWidget::NativeConstruct()
@@ -43,10 +44,42 @@ void UVNMainWidget::OnScreenClicked()
 
 void UVNMainWidget::HandleTextUpdate(const FString& Text, int32 SpeakerID, int32 BgID, int32 CharID)
 {
-    // 这里处理背景图、立绘的更新 (可以使用 switch 或者 数组映射)
-    // ... UpdateImage(BgID);
+    // 处理背景图、立绘的更新
+
+    if (BgID < 0 || BgID > BackgroundImages.Num())
+    {
+        UE_LOG(LogTemp, Error, TEXT("Invalid BgID: %d"), BgID);
+        return;
+    }
+
+    if (CharID < 0 || CharID > CharacterImages.Num())
+    {
+        UE_LOG(LogTemp, Error, TEXT("Invalid CharID: %d"), CharID);
+        return;
+    }
+
+    if (BgID == 0)
+    {
+        Image_Background->SetVisibility(ESlateVisibility::Hidden);
+    }
+    else
+    {
+        Image_Background->SetVisibility(ESlateVisibility::HitTestInvisible);
+        Image_Background->SetBrushFromTexture(BackgroundImages[BgID]);
+    }
+
+    if (CharID == 0)
+    {
+        Image_Character->SetVisibility(ESlateVisibility::Hidden);
+    }
+    else
+    {
+        Image_Character->SetVisibility(ESlateVisibility::HitTestInvisible);
+        Image_Character->SetBrushFromTexture(CharacterImages[CharID]);
+    }
 
     // 开始打字
+    
     StartTypewriter(Text);
 }
 
