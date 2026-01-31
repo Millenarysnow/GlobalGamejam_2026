@@ -29,7 +29,7 @@ enum class EGeneratedType:uint8 // 生成物具体类型
 {
 	None = 0, // 空类型
 	StandardBullet, // 标准子弹
-	EnhancedBullet, // 强化子弹
+	EnhancedBullet, // 强化子弹 // 暂时弃用
 	Explosion // 爆炸
 };
 

@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interface/OnHit.h"
 #include "CharacterBase.generated.h"
 
 UCLASS()
-class GLOBALGAMEJAM_2026_API ACharacterBase : public ACharacter
+class GLOBALGAMEJAM_2026_API ACharacterBase : public ACharacter, public IOnHit
 {
 	GENERATED_BODY()
 
