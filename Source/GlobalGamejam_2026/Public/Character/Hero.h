@@ -5,11 +5,24 @@
 #include "InputActionValue.h" // 引入 EnhancedInput 值类型
 #include "Hero.generated.h"
 
+class AHeroController;
+class UPauseWidget;
+class USkillCanvasWidget;
 // 前置声明
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+
+UENUM()
+enum class EPlayerType : uint8
+{
+	None = 0,
+	Playing,
+	Backpack,
+	Pause
+};
+
 
 UCLASS()
 class GLOBALGAMEJAM_2026_API AHero : public ACharacterBase
@@ -34,6 +47,13 @@ protected:
 	/** 跟随摄像机 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* FollowCamera;
+
+	// ----- 部分蓝图类 ----- 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom")
+	TSubclassOf<USkillCanvasWidget> BackpackClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom")
+	TSubclassOf<UPauseWidget> PauseMenuClass;
 
 	// --- Enhanced Input 资源配置 ---
 	
@@ -92,4 +112,21 @@ protected:
 
 	/** 次要能力释放 */
 	void SecondaryAbility(const FInputActionValue& Value);
+
+private:
+	UPROPERTY()
+	USkillCanvasWidget* Backpack;
+
+	UPROPERTY()
+	UPauseWidget* PauseMenu;
+
+	UFUNCTION()
+	void SwitchPlayerType(EPlayerType NewType);
+
+	EPlayerType CurrentType = EPlayerType::Playing;
+	
+	bool bInBackpack = false;
+
+	UPROPERTY()
+	AHeroController* HeroController;
 };

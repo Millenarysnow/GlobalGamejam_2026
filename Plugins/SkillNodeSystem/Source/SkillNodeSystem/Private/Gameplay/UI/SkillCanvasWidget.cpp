@@ -16,6 +16,8 @@ void USkillCanvasWidget::NativeConstruct()
     Super::NativeConstruct();
     UISubsystem = GetGameInstance()->GetSubsystem<USkillUISubsystem>();
     RefreshCanvas();
+
+    UE_LOG(LogTemp, Log, TEXT("SkillCanvasWidget Constructed and Canvas Refreshed."));
 }
 
 void USkillCanvasWidget::RefreshCanvas()

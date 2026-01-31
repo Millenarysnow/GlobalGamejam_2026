@@ -1,10 +1,16 @@
 ﻿#include "Character/Hero.h"
+
+#include "BoundShaderStateCache.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Gameplay/HeroController.h"
+#include "Gameplay/UI/SkillCanvasWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Widget/PauseWidget.h"
 
 AHero::AHero()
 {
@@ -53,6 +59,45 @@ void AHero::BeginPlay()
 			{
 				Subsystem->AddMappingContext(DefaultMappingContext, 0);
 			}
+		}
+	}
+
+	if (AController* C = GetController())
+	{
+		HeroController = Cast<AHeroController>(C);
+		if (!HeroController)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Controller is not HeroController!"));
+		}
+	}
+	
+	if (!BackpackClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PauseClass is not set in Hero blueprint."));	
+	}
+	else
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(Controller);
+		if (PlayerController)
+		{
+			Backpack = CreateWidget<USkillCanvasWidget>(PlayerController, BackpackClass);
+			Backpack->AddToViewport();
+			Backpack->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+
+	if (!PauseMenuClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("BackpackClass is not set in Hero blueprint."));	
+	}
+	else
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(Controller);
+		if (PlayerController)
+		{
+			PauseMenu = CreateWidget<UPauseWidget>(PlayerController, PauseMenuClass);
+			PauseMenu->AddToViewport();
+			PauseMenu->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
@@ -127,12 +172,11 @@ void AHero::Zoom(const FInputActionValue& Value)
 	}
 }
 
-// --- 以下为你需要自行实现的空回调 ---
-
 void AHero::OpenInventory(const FInputActionValue& Value)
 {
-	// TODO: 实现打开背包逻辑
 	UE_LOG(LogTemp, Log, TEXT("Open Inventory Pressed"));
+
+	SwitchPlayerType(EPlayerType::Backpack);
 }
 
 void AHero::Interact(const FInputActionValue& Value)
@@ -143,16 +187,68 @@ void AHero::Interact(const FInputActionValue& Value)
 
 void AHero::PauseGame(const FInputActionValue& Value)
 {
-	// TODO: 实现暂停逻辑
 	UE_LOG(LogTemp, Log, TEXT("Pause Game Pressed"));
+
+	if (CurrentType == EPlayerType::Playing)
+	{
+		SwitchPlayerType(EPlayerType::Pause);
+	}
+	else
+	{
+		SwitchPlayerType(EPlayerType::Playing);
+	}
 }
 
 void AHero::PrimaryAbility(const FInputActionValue& Value)
 {
-	// TODO: 左键能力
+	HeroController->LeftMousePressed();
 }
 
 void AHero::SecondaryAbility(const FInputActionValue& Value)
 {
-	// TODO: 右键能力
+	HeroController->RightMousePressed();
+}
+
+void AHero::SwitchPlayerType(EPlayerType NewType)
+{
+	switch (NewType)
+	{
+	case EPlayerType::None:
+		break;
+	case EPlayerType::Playing:
+		if (CurrentType == EPlayerType::Backpack)
+		{
+			if (!Backpack) return ;
+			Backpack->SetVisibility(ESlateVisibility::Hidden);
+		}
+		else if (CurrentType == EPlayerType::Pause)
+		{
+			// BUG: 从Pause回到Playing时，游戏当前仍在暂停，导致接收不到输入
+			if (!PauseMenu) return ;
+			PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+			UGameplayStatics::SetGamePaused(GetWorld(), false);
+		}
+		CurrentType = NewType;
+		break;
+	case EPlayerType::Backpack:
+		if (CurrentType == EPlayerType::Playing)
+		{
+			if (!Backpack) return ;
+			Backpack->RefreshCanvas();
+			Backpack->SetVisibility(ESlateVisibility::Visible);
+		}
+		CurrentType = NewType;
+		break;
+	case EPlayerType::Pause:
+		if (CurrentType == EPlayerType::Playing)
+		{
+			if (!PauseMenu) return ;
+			PauseMenu->SetVisibility(ESlateVisibility::Visible);
+			UGameplayStatics::SetGamePaused(GetWorld(), true);
+		}
+		CurrentType = NewType;
+		break;
+	default:
+		break;	
+	}
 }

@@ -21,16 +21,6 @@ void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SkillComponent = NewObject<USkillComponent>(this, SkillComponentClass);
-	if (SkillComponent) 
-	{
-		SkillComponent->RegisterComponent();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to create SkillComponent!"));
-	}
-
 	AttributeComponent = NewObject<UCharacterAttributeComponent>(this, AttributeComponentClass);
 	if (AttributeComponent)
 	{
@@ -39,6 +29,16 @@ void ACharacterBase::BeginPlay()
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to create CharacterAttributeComponent!"));
+	}
+
+	SkillComponent = NewObject<USkillComponent>(this, SkillComponentClass);
+	if (SkillComponent) 
+	{
+		SkillComponent->RegisterComponent();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to create SkillComponent!"));
 	}
 }
 
