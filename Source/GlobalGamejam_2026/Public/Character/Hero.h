@@ -2,7 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "CharacterBase.h"
-#include "InputActionValue.h" // 引入 EnhancedInput 值类型
+#include "InputActionValue.h" 
+#include "Interface/HitByEnemy.h"
 #include "Hero.generated.h"
 
 class AHeroController;
@@ -25,7 +26,7 @@ enum class EPlayerType : uint8
 
 
 UCLASS()
-class GLOBALGAMEJAM_2026_API AHero : public ACharacterBase
+class GLOBALGAMEJAM_2026_API AHero : public ACharacterBase, public IHitByEnemy
 {
 	GENERATED_BODY()
 
@@ -38,7 +39,12 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
+	// 接口实现
+	// 减速固定为25
+	virtual void OnIHit_Implementation(float DamageAmount, float SlowDuration, AActor* HitInstigator) override;
+	void RecoverFromSlow(FTimerHandle Handle);
+	
 protected:
 	/** 摄像机吊臂 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")

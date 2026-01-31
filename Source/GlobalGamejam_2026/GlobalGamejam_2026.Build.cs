@@ -11,7 +11,8 @@ public class GlobalGamejam_2026 : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore",
 			"EnhancedInput",
 			"SkillNodeSystem",
-			"Slate", "SlateCore", "UMG"
+			"Slate", "SlateCore", "UMG",
+			"AIModule"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

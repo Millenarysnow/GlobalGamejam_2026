@@ -1,25 +1,33 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "EnemyBullet.generated.h"
 
+class USphereComponent;
+class UProjectileMovementComponent;
+
 UCLASS()
 class GLOBALGAMEJAM_2026_API AEnemyBullet : public AActor
 {
 	GENERATED_BODY()
-
-public:
-	// Sets default values for this actor's properties
+	
+public:	
 	AEnemyBullet();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	// 属性（由发射者赋值）
+	float Damage = 10.f;
+	float SlowDuration = 2.0f;
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+protected:
+	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+	USphereComponent* CollisionComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Movement")
+	UProjectileMovementComponent* ProjectileMovement;
+
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, 
+						UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
+						bool bFromSweep, const FHitResult& SweepResult);
 };

@@ -1,26 +1,43 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "Actor/EnemyBullet.h"
+#include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Interface/HitByEnemy.h"
 
-
-#include "Actor/EnemyBullet.h"
-
-
-// Sets default values
 AEnemyBullet::AEnemyBullet()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-}
+	PrimaryActorTick.bCanEverTick = false;
 
-// Called when the game starts or when spawned
-void AEnemyBullet::BeginPlay()
-{
-	Super::BeginPlay();
+	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	CollisionComp->InitSphereRadius(15.0f);
+	CollisionComp->SetCollisionProfileName("OverlapAllDynamic"); // 或者自定义 Profile
+	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBullet::OnOverlapBegin);
+	RootComponent = CollisionComp;
+
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
+	ProjectileMovement->UpdatedComponent = CollisionComp;
+	ProjectileMovement->InitialSpeed = 900.f;
+	ProjectileMovement->MaxSpeed = 900.f;
+	ProjectileMovement->bRotationFollowsVelocity = true;
+	ProjectileMovement->ProjectileGravityScale = 0.f; // 直线飞行
 	
+	InitialLifeSpan = 5.0f;
 }
 
-// Called every frame
-void AEnemyBullet::Tick(float DeltaTime)
+void AEnemyBullet::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, 
+								  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
+								  bool bFromSweep, const FHitResult& SweepResult)
 {
-	Super::Tick(DeltaTime);
-}
+	if (!OtherActor || OtherActor == GetInstigator()) return;
 
+	if (OtherActor->Implements<UHitByEnemy>())
+	{
+		// 击中玩家：造成伤害 + 减速
+		IHitByEnemy::Execute_OnIHit(OtherActor, Damage, SlowDuration, GetInstigator());
+		Destroy();
+	}
+	else if (OtherActor->GetClass()->IsChildOf(APawn::StaticClass()) == false)
+	{
+		// 击中墙壁/障碍物销毁
+		Destroy();
+	}
+}

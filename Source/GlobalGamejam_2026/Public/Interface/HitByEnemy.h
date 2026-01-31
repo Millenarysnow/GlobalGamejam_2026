@@ -14,12 +14,19 @@ class UHitByEnemy : public UInterface
 };
 
 /**
- * 
+ * 敌人攻击接口，玩家类应当实现此接口
  */
 class GLOBALGAMEJAM_2026_API IHitByEnemy
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	/**
+	 * 受击事件
+	 * @param DamageAmount 造成的伤害值
+	 * @param SlowDuration 减速持续时间（秒），<=0 代表不减速
+	 * @param HitInstigator 伤害来源
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat")
+	void OnIHit(float DamageAmount, float SlowDuration, AActor* HitInstigator);
 };

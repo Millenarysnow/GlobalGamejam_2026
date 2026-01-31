@@ -1,32 +1,46 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "Character/Enemy/MeleeEnemy.h"
+#include "Interface/HitByEnemy.h"
+#include "Component/CharacterAttributeComponent.h"
 
-
-#include "Character/Enemy/MeleeEnemy.h"
-
-
-// Sets default values
 AMeleeEnemy::AMeleeEnemy()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
-void AMeleeEnemy::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
 void AMeleeEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	AActor* Target = GetTargetPlayer();
+	if (!Target) return;
+
+	// 1. 寻路移动：由于有障碍物，我们依然让它寻路，直到距离 AttackRange - 10 停止
+	// 减去一点距离是为了确保能碰到玩家
+	NavMoveToTarget(Target, AttackRange - 20.f);
+
+	// 2. 冷却处理
+	if (AttackCooldown > 0.f)
+	{
+		AttackCooldown -= DeltaTime;
+	}
+
+	// 3. 攻击判定
+	float DistSq = FVector::DistSquared(GetActorLocation(), Target->GetActorLocation());
+	if (DistSq <= FMath::Square(AttackRange) && AttackCooldown <= 0.f)
+	{
+		TryAttack(Target);
+	}
 }
 
-// Called to bind functionality to input
-void AMeleeEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AMeleeEnemy::TryAttack(AActor* Target)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
+	if (Target->Implements<UHitByEnemy>())
+	{
+		float Damage = AttributeComponent ? AttributeComponent->GetDamage() : 10.f;
+		// 造成伤害
+		IHitByEnemy::Execute_OnIHit(Target, Damage, 0.f, this);
+	}
 
+	// 重置冷却：1 / 攻速
+	float AttackSpeed = AttributeComponent ? AttributeComponent->GetAttackSpeed() : 1.f;
+	AttackCooldown = 1.0f / FMath::Max(AttackSpeed, 0.1f);
+}

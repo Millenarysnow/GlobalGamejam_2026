@@ -1,10 +1,11 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "CharacterBase.h"
+#include "CharacterBase.h" 
 #include "Enemy.generated.h"
+
+class UCharacterAttributeComponent;
+class AAIController;
 
 UCLASS()
 class GLOBALGAMEJAM_2026_API AEnemy : public ACharacterBase
@@ -12,17 +13,26 @@ class GLOBALGAMEJAM_2026_API AEnemy : public ACharacterBase
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AEnemy();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+protected:
+	// 缓存 AIController
+	UPROPERTY()
+	AAIController* EnemyAIController;
+
+	// 获取目标（玩家）
+	AActor* GetTargetPlayer() const;
+
+	// 使用寻路移动到目标
+	// AcceptanceRadius: 停止距离（到达这个半径内即视为到达）
+	void NavMoveToTarget(AActor* Target, float AcceptanceRadius);
+	
+	// 简单的朝向旋转（辅助攻击时的朝向）
+	void FaceTarget(AActor* Target);
 };

@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Component/CharacterAttributeComponent.h"
 #include "Gameplay/HeroController.h"
 #include "Gameplay/UI/SkillCanvasWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -138,6 +139,44 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		if (SecondaryAbilityAction)
 			EnhancedInputComponent->BindAction(SecondaryAbilityAction, ETriggerEvent::Triggered, this, &AHero::SecondaryAbility);
 	}
+}
+
+// 减速固定为25
+void AHero::OnIHit_Implementation(float DamageAmount, float SlowDuration, AActor* HitInstigator)
+{
+	UE_LOG(LogTemp, Log, TEXT("Hero hit: Damage=%.2f, SlowDuration=%.2f"), DamageAmount, SlowDuration);
+	
+	if (!AttributeComponent) return;
+
+	// ------- 处理伤害 -------
+
+	AttributeComponent->ModifyHealth(-DamageAmount);
+	
+	// ------- 应用减速 -------
+	
+	float Multiplier = 0.25f;
+	
+	// 应用修改
+	AttributeComponent->ModifySpeedRate(Multiplier) ;
+
+	// 设定定时器还原
+	FTimerHandle Handle;
+	FTimerDelegate Delegate;
+	
+	// 绑定带参数的回调
+	Delegate.BindUObject(this, &AHero::RecoverFromSlow, Handle);
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(Handle, Delegate, SlowDuration, false);
+	}
+}
+
+void AHero::RecoverFromSlow(FTimerHandle Handle)
+{
+	if (!AttributeComponent) return ;
+	AttributeComponent->ModifySpeedRate(0.25f);
+	Handle.Invalidate();
 }
 
 void AHero::Move(const FInputActionValue& Value)

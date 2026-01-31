@@ -1,32 +1,54 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "Character/Enemy/CrashEnemy.h"
+#include "Interface/HitByEnemy.h"
+#include "Component/CharacterAttributeComponent.h"
+#include "Kismet/GameplayStatics.h"
 
-
-#include "Character/Enemy/CrashEnemy.h"
-
-
-// Sets default values
 ACrashEnemy::ACrashEnemy()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	// 可以在这里或蓝图中调高默认速度
 }
 
-// Called when the game starts or when spawned
-void ACrashEnemy::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
 void ACrashEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	AActor* Target = GetTargetPlayer();
+	if (!Target) return;
+
+	// 1. 寻路移动：直到贴脸 (半径5.0)
+	NavMoveToTarget(Target, 5.0f);
+
+	// 2. 距离检测
+	float DistSq = FVector::DistSquared(GetActorLocation(), Target->GetActorLocation());
+	if (DistSq <= FMath::Square(TriggerRadius))
+	{
+		SelfDestruct();
+	}
 }
 
-// Called to bind functionality to input
-void ACrashEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ACrashEnemy::SelfDestruct()
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
+	// 播放特效逻辑可在此处添加 (SpawnEmitterAtLocation)
 
+	// 范围伤害检测
+	TArray<FHitResult> HitResults;
+	FVector Start = GetActorLocation();
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(ExplosionRadius);
+	
+	// 扫描 Pawn 类型对象
+	GetWorld()->SweepMultiByChannel(HitResults, Start, Start, FQuat::Identity, ECC_Pawn, Sphere);
+
+	float Damage = AttributeComponent ? AttributeComponent->GetDamage() : 20.f;
+
+	for (const FHitResult& Hit : HitResults)
+	{
+		AActor* HitActor = Hit.GetActor();
+		if (HitActor && HitActor != this && HitActor->Implements<UHitByEnemy>())
+		{
+			// 造成伤害，无减速
+			IHitByEnemy::Execute_OnIHit(HitActor, Damage, 0.f, this);
+		}
+	}
+	
+	Destroy();
+}
