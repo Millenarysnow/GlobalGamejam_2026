@@ -6,6 +6,11 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "DirectorSubsystem.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnErosionChanged, float, CurrentHealth, float, MaxHealth);
+
+
+
 /**
  * 
  */
@@ -45,6 +50,12 @@ public:
 	// 0 - 100
 	UFUNCTION(BlueprintCallable)
 	float GetErosionRate();
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnErosionChanged OnErosionChanged;
+
+	float GetErosionValue();
+	float GetMaxErosionValue();
 
 private:
 	float CurrentErosionValue = 0.f;

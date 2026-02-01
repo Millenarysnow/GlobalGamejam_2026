@@ -39,6 +39,17 @@ void UFightUI::NativeConstruct()
 		UE_LOG(LogTemp, Error, TEXT("BloodImage is null in FightUI"));
 	}
 
+	if (ErosionImage)
+	{
+		ErosionMaterialInst = ErosionImage->GetDynamicMaterial();
+
+		UE_LOG(LogTemp, Warning, TEXT("Erosion Material Instance Created"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ErosionImage is null in FightUI"));
+	}
+
 	APawn* OwningPawn = GetOwningPlayerPawn();
 	if (AHero* MyChar = Cast<AHero>(OwningPawn))
 	{
@@ -54,6 +65,18 @@ void UFightUI::NativeConstruct()
 			MyChar->OnAttributeCompReady.AddDynamic(this, &UFightUI::HandleAttributeCompReady);
 		}
 	}
+
+	if (GetDirectorSubsystem())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DirectorSubsystem found in FightUI"));
+		GetDirectorSubsystem()->OnErosionChanged.AddDynamic(this, &UFightUI::FlushErosionUI);
+
+		FlushErosionUI(GetDirectorSubsystem()->GetErosionValue(), GetDirectorSubsystem()->GetMaxErosionValue());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("DirectorSubsystem is null in FightUI"));
+	}
 }
 
 void UFightUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -61,13 +84,20 @@ void UFightUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
-void UFightUI::FlushErosionUI()
+void UFightUI::FlushErosionUI(float CurrentValue, float MaxValue)
 {
-	if (!GetDirectorSubsystem()) return ;
+	UE_LOG(LogTemp, Warning, TEXT("FlushErosionUI called with CurrentErosion: %.2f, MaxErosion: %.2f"), CurrentValue, MaxValue);
+	
+	if (!ErosionMaterialInst) return;
 
-	GetDirectorSubsystem()->GetErosionRate();
+	// 计算百分比 (0.0 - 1.0)
+	float Percent = (MaxValue > 0.f) ? (CurrentValue / MaxValue) : 0.f;
 
-	// ...
+	// 3. 设置材质参数
+	// 注意：这里的 "Percent" 必须和你材质编辑器里 Scalar Parameter 的名字完全一致！
+	ErosionMaterialInst->SetScalarParameterValue(FName("Percent"), Percent);
+
+	ErosionText->SetText(FText::FromString(FString::Printf(TEXT("%.0f / %.0f"), CurrentValue, MaxValue)) );
 }
 
 void UFightUI::FlushBloodUI(float CurrentHealth, float MaxHealth)

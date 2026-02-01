@@ -88,9 +88,24 @@ void UDirectorSubsystem::WinTheGame()
 void UDirectorSubsystem::SetCurrentErosionValue(float NewErosionValue)
 {
 	CurrentErosionValue = FMath::Clamp(NewErosionValue, 0.f, MaxErosionValue);
+
+	if (OnErosionChanged.IsBound())
+	{
+		OnErosionChanged.Broadcast(CurrentErosionValue, MaxErosionValue);
+	}		
 }
 
 float UDirectorSubsystem::GetErosionRate()
 {
 	return FMath::Clamp((CurrentErosionValue + 1.f) / (MaxErosionValue + 1.f) * 100.f, 0.f, 100.f);
+}
+
+float UDirectorSubsystem::GetErosionValue()
+{
+	return CurrentErosionValue;
+}
+
+float UDirectorSubsystem::GetMaxErosionValue()
+{
+	return MaxErosionValue;
 }

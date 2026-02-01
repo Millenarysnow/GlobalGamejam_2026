@@ -37,8 +37,11 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* BloodText;
 
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* ErosionText;
+
 	UFUNCTION(BlueprintCallable)
-	void FlushErosionUI();
+	void FlushErosionUI(float CurrentValue, float MaxValue);
 
 	UFUNCTION(BlueprintCallable)
 	void FlushBloodUI(float CurrentHealth, float MaxHealth);
@@ -59,6 +62,9 @@ private:
 	UPROPERTY()
 	UMaterialInstanceDynamic* BloodMaterialInst;
 
+	UPROPERTY()
+	UMaterialInstanceDynamic* ErosionMaterialInst;
+	
 	UPROPERTY()
 	UDirectorSubsystem* DirectorSubsystem;
 };
