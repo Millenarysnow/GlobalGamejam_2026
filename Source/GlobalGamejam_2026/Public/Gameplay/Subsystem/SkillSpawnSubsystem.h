@@ -22,6 +22,17 @@ class GLOBALGAMEJAM_2026_API USkillSpawnSubsystem : public UGameInstanceSubsyste
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
+	// 调试函数
+
+	UFUNCTION(BlueprintCallable)
+	void Test1();
+
+	UFUNCTION(Blueprintable)
+	void Test2();
+
+	UFUNCTION(Blueprintable)
+	void Test3();
+
 	// -- 局中真正调用的函数 --
 	
 	UFUNCTION(BlueprintCallable)
