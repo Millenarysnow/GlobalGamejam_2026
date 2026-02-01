@@ -10,8 +10,11 @@ void UMainUI::OnStartButtonReleased()
 {
 	StopBling();
 	
-	GetGameInstance()->GetSubsystem<UDirectorSubsystem>()->SwitchToLobby();
+	// GetGameInstance()->GetSubsystem<UDirectorSubsystem>()->SwitchToLobby();
 
+	// 切换到novel
+	GetGameInstance()->GetSubsystem<UDirectorSubsystem>()->SwitchToVN();
+	
 	RemoveFromParent();
 }
 

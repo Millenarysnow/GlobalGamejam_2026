@@ -1,6 +1,7 @@
 ﻿#include "VNGameSubsystem.h"
 
 #include "Engine/DataTable.h"
+#include "Gameplay/Subsystem/DirectorSubsystem.h"
 
 
 void UVNGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -60,6 +61,12 @@ void UVNGameSubsystem::LoadRow(int32 Chapter, int32 Line)
     }
 
     // --- 核心状态机逻辑  ---
+
+    if (Row->SP1 == 10)
+    {
+        GetGameInstance()->GetSubsystem<UDirectorSubsystem>()->SwitchToLobby();
+        return ;
+    }
 
     // SP1=4: 跳转 (Jump)
     if (Row->SP1 == 4)

@@ -38,7 +38,7 @@ public class GalgameFramework : ModuleRules
 			new string[]
 			{
 				"CoreUObject",
-				"Engine"
+				"Engine", "GlobalGamejam_2026"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

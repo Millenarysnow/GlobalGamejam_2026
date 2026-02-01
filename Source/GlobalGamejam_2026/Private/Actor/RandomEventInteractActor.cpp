@@ -7,6 +7,8 @@
 #include "Gameplay/Skills/ChildNodes/BuffNode.h"
 #include "Gameplay/Skills/ChildNodes/GenerateNode.h"
 #include "Gameplay/Skills/ChildNodes/StartNode.h"
+#include "Gameplay/Subsystem/GoldSystem.h"
+#include "Gameplay/Subsystem/SkillsManagerSubsystem.h"
 
 void ARandomEventInteractActor::OnInteract_Implementation(AHero* Interactor)
 {
@@ -59,8 +61,11 @@ void ARandomEventInteractActor::OnInteract_Implementation(AHero* Interactor)
 				default:
 					break;
 				}
+
+				USkillNode* Node = GetGameInstance()->GetSubsystem<USkillsManagerSubsystem>()->NewSkillNode(NewNodeInfo, TargetClass);
+				GetGameInstance()->GetSubsystem<UGoldSystem>()->AddNewNodeGold_InGame(Node);
 				
-				SkillSys->NewNode(NewNodeInfo, TargetClass);
+				// SkillSys->NewNode(NewNodeInfo, TargetClass);
 			}
 		}
 		

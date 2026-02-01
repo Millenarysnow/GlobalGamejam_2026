@@ -7,6 +7,7 @@
 #include "DirectorSubsystem.generated.h"
 
 
+class UVNMainWidget;
 class UStatementUI;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnErosionChanged, float, CurrentHealth, float, MaxHealth);
 
@@ -23,8 +24,11 @@ class GLOBALGAMEJAM_2026_API UDirectorSubsystem : public UGameInstanceSubsystem
 public:
 	UFUNCTION(BlueprintCallable)
 	void Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld,
-		TSubclassOf<UStatementUI> _InStatementUIClass);
+		TSubclassOf<UStatementUI> _InStatementUIClass, TSubclassOf<UUserWidget> _InVNMainWidgetClass);
 
+	UFUNCTION(BlueprintCallable)
+	void SwitchToVN();
+	
 	UPROPERTY()
 	TSoftObjectPtr<UWorld> LbWorld;
 
@@ -65,4 +69,10 @@ private:
 
 	UPROPERTY()
 	TSubclassOf<UStatementUI> StatementUIClass;
+
+	UPROPERTY()
+	TSubclassOf<UUserWidget> VNMainWidgetClass;
+
+	UPROPERTY()
+	UUserWidget* VNUI;
 };

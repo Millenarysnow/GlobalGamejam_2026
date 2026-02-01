@@ -9,7 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Widget/StatementUI.h"
 
-void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld, TSubclassOf<UStatementUI> _InStatementUIClass)
+void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld, TSubclassOf<UStatementUI> _InStatementUIClass, TSubclassOf<UUserWidget> _InVNMainWidgetClass)
 {
 	// 初始化逻辑
 
@@ -18,10 +18,24 @@ void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UW
 	if (GmWorld == nullptr)
 		GmWorld = _GmWorld;
 	StatementUIClass = _InStatementUIClass;
+	VNMainWidgetClass = _InVNMainWidgetClass;
+}
+
+void UDirectorSubsystem::SwitchToVN()
+{
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+	VNUI = CreateWidget(PC, VNMainWidgetClass);
+	VNUI->AddToViewport();
 }
 
 void UDirectorSubsystem::SwitchToLobby()
 {
+	if (VNUI)
+	{
+		VNUI->RemoveFromParent();
+		VNUI = nullptr;
+	}
 	if (LbWorld.ToSoftObjectPath().IsValid())
 	{
 		const FString MapName = LbWorld.ToSoftObjectPath().GetAssetName();
