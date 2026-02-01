@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "PauseWidget.generated.h"
 
+class UButton;
 /**
  * 
  */

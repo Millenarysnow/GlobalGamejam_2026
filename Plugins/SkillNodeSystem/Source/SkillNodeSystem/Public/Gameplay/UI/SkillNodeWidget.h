@@ -5,6 +5,7 @@
 #include "Gameplay/Skills/SkillType.h"
 #include "SkillNodeWidget.generated.h"
 
+class UImage;
 class USkillNode;
 class USkillUISubsystem;
 class UTextBlock;
@@ -23,6 +24,9 @@ class SKILLNODESYSTEM_API USkillNodeWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
+	UPROPERTY(meta = (BindWidget))
+	UImage* NodeImage;
+	
 	// 初始化节点数据
 	UFUNCTION(BlueprintCallable)
 	void InitNodeData(USkillNode* InNode);
@@ -49,8 +53,8 @@ protected:
 	USkillNode* BindNode;
 
 	// 在蓝图中绑定 TextBlock 显示名称
-	UPROPERTY(meta = (BindWidget)) 
-	UTextBlock* NodeNameText;
+	// UPROPERTY(meta = (BindWidget)) 
+	// UTextBlock* NodeNameText;
     
 	// 拖拽时的可视 Widget 类
 	UPROPERTY(EditDefaultsOnly, Category = "UI")

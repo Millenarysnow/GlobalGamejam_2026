@@ -7,6 +7,7 @@
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/Image.h"
 
 #include "Gameplay/UI/SkillDragDropOperation.h" // 节点移动的Drop
 #include "Gameplay/UI/SkillConnectionDragDropOperation.h" // 连线的Drop
@@ -41,6 +42,7 @@ void USkillCanvasWidget::RefreshCanvas()
 
         // 创建 Widget
         USkillNodeWidget* NewNodeWidget = CreateWidget<USkillNodeWidget>(this, NodeWidgetClass);
+        NewNodeWidget->NodeImage->SetBrushFromTexture(NodeTextures[(int32)Node->GetNodeType()]);
         NewNodeWidget->InitNodeData(Node);
         
         // 添加到画布
@@ -49,7 +51,7 @@ void USkillCanvasWidget::RefreshCanvas()
         // 设置位置
         FVector2D Pos = UISubsystem->GetNodePosition(Node->GetHashID());
         CanvasSlot->SetPosition(Pos);
-        CanvasSlot->SetSize(FVector2D(150.f, 80.f)); // 默认大小，建议在 UMG 蓝图中设置
+        CanvasSlot->SetSize(FVector2D(200.f, 200.f)); // 默认大小，建议在 UMG 蓝图中设置
 
         ActiveNodeWidgets.Add(Node->GetHashID(), NewNodeWidget);
     }

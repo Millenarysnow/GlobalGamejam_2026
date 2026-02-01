@@ -19,6 +19,7 @@ void USkillNodeWidget::InitNodeData(USkillNode* InNode)
 	BindNode = InNode;
 	if (!BindNode) return;
 
+	/*
 	// 1. 设置名称
 	if (NodeNameText)
 	{
@@ -28,6 +29,7 @@ void USkillNodeWidget::InitNodeData(USkillNode* InNode)
 		if (Index != INDEX_NONE) Name = Name.RightChop(Index + 2);
 		NodeNameText->SetText(FText::FromString(Name));
 	}
+	*/
 
 	if (!PinWidgetClass) return;
 

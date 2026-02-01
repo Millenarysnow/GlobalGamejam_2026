@@ -31,6 +31,9 @@ public:
 
 	void ClearNode();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<UTexture2D*> NodeTextures;
+
 protected:
 	// 处理节点拖拽松手后的位置更新
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;

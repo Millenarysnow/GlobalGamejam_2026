@@ -14,6 +14,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Widget/FightUI.h"
 #include "Widget/PauseWidget.h"
+#include "Actor/InteractActor.h"
 
 AHero::AHero()
 {
@@ -240,8 +241,53 @@ void AHero::OpenInventory(const FInputActionValue& Value)
 
 void AHero::Interact(const FInputActionValue& Value)
 {
-	// TODO: 实现交互逻辑
 	UE_LOG(LogTemp, Log, TEXT("Interact Pressed"));
+
+	// --- 实现交互逻辑 ---
+	
+	// 1. 定义检测范围和位置
+	FVector Start = GetActorLocation();
+	FVector End = Start; // 球形检测不需要终点移动
+	float InteractRadius = 200.0f; // 交互半径
+	
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic)); // 假设交互物是 WorldDynamic
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn)); // 如果需要交互 Pawn
+	
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+	
+	TArray<AActor*> OutActors;
+
+	// 2. 执行球形重叠检测
+	bool bOverlapped = UKismetSystemLibrary::SphereOverlapActors(
+		this,
+		Start,
+		InteractRadius,
+		ObjectTypes,
+		AInteractActor::StaticClass(), // 只筛选 AInteractActor
+		ActorsToIgnore,
+		OutActors
+	);
+
+	// 3. 处理交互 (只与找到的第一个有效对象交互)
+	if (bOverlapped)
+	{
+		for (AActor* OverlappedActor : OutActors)
+		{
+			if (AInteractActor* Item = Cast<AInteractActor>(OverlappedActor))
+			{
+				// 执行交互
+				Item->OnInteract(this);
+				
+				// 找到一个交互后立即 break，避免一次按键触发多个物体
+				break; 
+			}
+		}
+	}
+	
+	// Debug 绘制查看范围
+	UKismetSystemLibrary::DrawDebugSphere(this, Start, InteractRadius, 12, FLinearColor::Green, 2.0f);
 }
 
 void AHero::PauseGame(const FInputActionValue& Value)
@@ -287,6 +333,7 @@ void AHero::SwitchPlayerType(EPlayerType NewType)
 			PauseMenu->SetVisibility(ESlateVisibility::Hidden);
 			UGameplayStatics::SetGamePaused(GetWorld(), false);
 		}
+		Cast<APlayerController>(GetController())->SetShowMouseCursor(false);
 		CurrentType = NewType;
 		break;
 	case EPlayerType::Backpack:
@@ -296,6 +343,7 @@ void AHero::SwitchPlayerType(EPlayerType NewType)
 			Backpack->RefreshCanvas();
 			Backpack->SetVisibility(ESlateVisibility::Visible);
 		}
+		Cast<APlayerController>(GetController())->SetShowMouseCursor(true);
 		CurrentType = NewType;
 		break;
 	case EPlayerType::Pause:
@@ -305,6 +353,7 @@ void AHero::SwitchPlayerType(EPlayerType NewType)
 			PauseMenu->SetVisibility(ESlateVisibility::Visible);
 			UGameplayStatics::SetGamePaused(GetWorld(), true);
 		}
+		Cast<APlayerController>(GetController())->SetShowMouseCursor(true);
 		CurrentType = NewType;
 		break;
 	default:
