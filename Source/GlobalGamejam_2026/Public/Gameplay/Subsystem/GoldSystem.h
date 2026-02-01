@@ -38,10 +38,14 @@ public:
 
 	float GetGold_OfAll();
 	void SetGold_OfAll(float NewGold);
+
+	float GetTargetGold() const { return TargetGold; }
 	
 private:
 	float Gold_InGame = 0;
 	float GoldInInventory = 0;
+
+	float TargetGold = 1000.f;
 
 	UPROPERTY()
 	USkillsManagerSubsystem* SkillsManagerSubsystem;

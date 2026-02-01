@@ -11,8 +11,10 @@ void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UW
 {
 	// TODO : 初始化逻辑
 
-	LbWorld = _LbWorld;
-	GmWorld = _GmWorld;
+	if (LbWorld == nullptr)
+		LbWorld = _LbWorld;
+	if (GmWorld == nullptr)
+		GmWorld = _GmWorld;
 }
 
 void UDirectorSubsystem::SwitchToLobby()
