@@ -139,9 +139,35 @@ void USkillsManagerSubsystem::DisconnectNode(USkillNode* ParentNode, USkillNode*
 
 void USkillsManagerSubsystem::ClearAllNode()
 {
-	HashToNode.Empty();
+	// 1. 先清理 Runtime 子系统中的引用
+	// 必须先清理运行时系统的持有，防止它在节点销毁后还尝试访问
+	if (USkillsRuntimeSubsystem* RuntimeSys = GetSkillsRuntimeSubsystem())
+	{
+		RuntimeSys->ClearNode();
+	}
 
-	SkillsRuntimeSubsystem->ClearNode();
+	// 2. 遍历所有节点并显式标记为垃圾 (MarkAsGarbage)
+	// 重要：因为 USkillNode 的 Outer 是 GameInstanceSubsystem，它们不会随 World 销毁。
+	// 如果不手动 MarkAsGarbage，这些对象会变成"僵尸对象"，直到 GC 最终回收。
+	// 在结算清除阶段，我们需要确保它们立即失效。
+	for (auto& Elem : HashToNode)
+	{
+		if (USkillNode* Node = Elem.Value)
+		{
+			// 断开所有子节点引用，帮助 GC 处理环状引用（如果有）
+			Node->ForceRemoveAllChild();
+			Node->SetParentNode(nullptr);
+
+			// 标记为待销毁
+			Node->MarkAsGarbage();
+		}
+	}
+
+	// 3. 最后清空 Map
+	HashToNode.Empty();
+	
+	// 4. 重置运行状态（如果需要）
+	bCanRun = false;
 }
 
 USkillNode* USkillsManagerSubsystem::GetSkillNodeByHash(const int32 _HashID) const
