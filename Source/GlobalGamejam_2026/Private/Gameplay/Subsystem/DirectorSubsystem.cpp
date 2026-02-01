@@ -35,6 +35,8 @@ void UDirectorSubsystem::SwitchToGame()
 	{
 		const FString MapName = GmWorld.ToSoftObjectPath().GetAssetName();
 		UGameplayStatics::OpenLevel(GetWorld(), FName(*MapName));
+
+		GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeGameAndUI());
 	}
 }
 
