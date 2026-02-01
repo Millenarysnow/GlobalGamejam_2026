@@ -15,6 +15,9 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 
+// 声明委托：参数是组件指针
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeCompReady, UCharacterAttributeComponent*, NewComp);
+
 UENUM()
 enum class EPlayerType : uint8
 {
@@ -47,6 +50,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeCompReady OnAttributeCompReady;
+
+	UFUNCTION(BlueprintCallable)
+	UCharacterAttributeComponent* GetAttributeComp();
 	
 protected:
 	/** 摄像机吊臂 */

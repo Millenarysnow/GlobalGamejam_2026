@@ -69,6 +69,13 @@ void UCharacterAttributeComponent::ModifyHealth(float DeltaValue)
 
 	CurrentHealth = FMath::Clamp(CurrentHealth + DeltaValue, 0.0f, MaxHealth);
 
+	// 广播变化
+
+	if (OnHealthChanged.IsBound())
+	{
+		OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+	}		
+	
 	// 死亡逻辑
 	
 	if (CurrentHealth <= 0.5f)

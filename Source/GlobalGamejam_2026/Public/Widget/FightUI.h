@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "FightUI.generated.h"
 
+class UCharacterAttributeComponent;
+class UTextBlock;
 class UDirectorSubsystem;
 class UImage;
 class AHero;
@@ -21,7 +23,9 @@ class GLOBALGAMEJAM_2026_API UFightUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	virtual void NativeConstruct(const FGeometry& MyGeometry, float InDeltaTime);
+	void InitializeWidget(UCharacterAttributeComponent* AttributeComp);
+	
+	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	
 	UPROPERTY(meta = (BindWidget))
@@ -30,17 +34,23 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* BloodImage;
 
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* BloodText;
+
 	UFUNCTION(BlueprintCallable)
 	void FlushErosionUI();
 
 	UFUNCTION(BlueprintCallable)
-	void FlushBloodUI(float CurrentHealthPercent);
+	void FlushBloodUI(float CurrentHealth, float MaxHealth);
 
 	UFUNCTION(BlueprintCallable)
 	AHero* GetPlayer();
 
 	UFUNCTION(BlueprintCallable)
 	UDirectorSubsystem* GetDirectorSubsystem();
+
+	UFUNCTION()
+	void HandleAttributeCompReady(UCharacterAttributeComponent* NewComp);
 	
 private:
 	UPROPERTY()

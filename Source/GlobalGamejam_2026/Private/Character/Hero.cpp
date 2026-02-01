@@ -7,10 +7,12 @@
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Component/CharacterAttributeComponent.h"
 #include "Gameplay/HeroController.h"
 #include "Gameplay/UI/SkillCanvasWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Widget/FightUI.h"
 #include "Widget/PauseWidget.h"
 
 AHero::AHero()
@@ -101,6 +103,13 @@ void AHero::BeginPlay()
 			PauseMenu->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
+
+	// 广播属性组件已准备好
+
+	if (OnAttributeCompReady.IsBound())
+	{
+		OnAttributeCompReady.Broadcast(AttributeComponent);
+	}
 }
 
 void AHero::Tick(float DeltaTime)
@@ -183,6 +192,11 @@ float AHero::GetHealthPercent()
 {
 	if (!AttributeComponent) return 0.f;
 	return FMath::Clamp((AttributeComponent->GetHealth() + 1.f) / (AttributeComponent->GetMaxHealth() + 1.f), 0.f, 1.f);
+}
+
+UCharacterAttributeComponent* AHero::GetAttributeComp()
+{
+	return AttributeComponent;
 }
 
 void AHero::Move(const FInputActionValue& Value)

@@ -6,6 +6,10 @@
 #include "Components/SceneComponent.h"
 #include "CharacterAttributeComponent.generated.h"
 
+// 血量更新时的委托
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, CurrentHealth, float, MaxHealth);
+
+
 /**
  * 用于挂载在角色和敌人身上，存储其属性信息
  */
@@ -26,8 +30,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
-
-
+	
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnHealthChanged OnHealthChanged;
+	
 #pragma region UTIL
 
 	float GetHealth() const { return CurrentHealth; }
