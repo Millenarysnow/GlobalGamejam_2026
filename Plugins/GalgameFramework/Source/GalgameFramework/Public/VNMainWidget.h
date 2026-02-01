@@ -22,6 +22,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnScreenClicked();
 
+	void StartChapter(int32 ChapterID, int32 StartIndex = 1);
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UTexture2D*> BackgroundImages; // 背景图数组

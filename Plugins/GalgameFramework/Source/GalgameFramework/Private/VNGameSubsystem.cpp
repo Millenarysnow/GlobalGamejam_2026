@@ -107,6 +107,9 @@ void UVNGameSubsystem::LoadRow(int32 Chapter, int32 Line)
     {
         // 这里假设 SpeakerID 可以从 Text 解析，或者你有单独字段
         // 为了演示，直接传 Background 和 Character
+
+        UE_LOG(LogTemp, Log, TEXT("VN: LoadRow Chapter%d_%d Text: %s"), Chapter, Line, *Row->Text);
+        
         OnTextUpdate.Broadcast(Row->Text, 0, Row->BackgroundImg, Row->CharacterImg);
     }
 }

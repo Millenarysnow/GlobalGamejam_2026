@@ -15,7 +15,7 @@ public class GlobalGamejam_2026 : ModuleRules
 			"AIModule"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { "GalgameFramework" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

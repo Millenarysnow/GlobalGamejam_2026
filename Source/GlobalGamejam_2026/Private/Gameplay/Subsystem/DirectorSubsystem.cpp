@@ -3,6 +3,7 @@
 
 #include "Gameplay/Subsystem/DirectorSubsystem.h"
 
+#include "VNGameSubsystem.h"
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/GameSession.h"
 #include "Gameplay/Subsystem/GoldSystem.h"
@@ -27,6 +28,7 @@ void UDirectorSubsystem::SwitchToVN()
 
 	VNUI = CreateWidget(PC, VNMainWidgetClass);
 	VNUI->AddToViewport();
+    GetGameInstance()->GetSubsystem<UVNGameSubsystem>()->StartChapter(1, 1);
 }
 
 void UDirectorSubsystem::SwitchToLobby()

@@ -22,12 +22,22 @@ void UVNMainWidget::NativeConstruct()
         VNSubsystem->OnTextUpdate.AddDynamic(this, &UVNMainWidget::HandleTextUpdate);
         VNSubsystem->OnShowOptions.AddDynamic(this, &UVNMainWidget::HandleShowOptions);
     }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("VNMainWidget: Failed to get VNGameSubsystem"));
+    }
 }
 
 void UVNMainWidget::OnScreenClicked()
 {
-    if (!VNSubsystem) return;
+    if (!VNSubsystem)
+    {
+        UE_LOG(LogTemp, Error, TEXT("VNMainWidget: VNSubsystem is null in OnScreenClicked"));
+        return;
+    }
 
+    UE_LOG(LogTemp, Log, TEXT("VNMainWidget: Screen clicked. IsTyping=%s"), bIsTyping ? TEXT("True") : TEXT("False"));
+    
     // 核心交互逻辑：
     // 如果正在打字 -> 快进 (InstantFinish)
     // 如果不在打字 -> 通知 Subsystem 进行下一步 (TryNextStep)
@@ -40,6 +50,11 @@ void UVNMainWidget::OnScreenClicked()
     {
         VNSubsystem->TryNextStep();
     }
+}
+
+void UVNMainWidget::StartChapter(int32 ChapterID, int32 StartIndex)
+{
+    GetGameInstance()->GetSubsystem<UVNGameSubsystem>()->StartChapter(ChapterID, StartIndex);
 }
 
 void UVNMainWidget::HandleTextUpdate(const FString& Text, int32 SpeakerID, int32 BgID, int32 CharID)
@@ -72,7 +87,7 @@ void UVNMainWidget::HandleTextUpdate(const FString& Text, int32 SpeakerID, int32
     }
     else
     {
-        Image_Background->SetVisibility(ESlateVisibility::HitTestInvisible);
+        Image_Background->SetVisibility(ESlateVisibility::Visible);
         Image_Background->SetBrushFromTexture(BackgroundImages[BgID]);
     }
 
@@ -82,7 +97,7 @@ void UVNMainWidget::HandleTextUpdate(const FString& Text, int32 SpeakerID, int32
     }
     else
     {
-        Image_Character->SetVisibility(ESlateVisibility::HitTestInvisible);
+        Image_Character->SetVisibility(ESlateVisibility::Visible);
         Image_Character->SetBrushFromTexture(CharacterImages[CharID]);
     }
 
