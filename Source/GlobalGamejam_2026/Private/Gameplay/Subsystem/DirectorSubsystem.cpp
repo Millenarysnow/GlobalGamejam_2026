@@ -11,7 +11,7 @@
 
 void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld, TSubclassOf<UStatementUI> _InStatementUIClass)
 {
-	// TODO : 初始化逻辑
+	// 初始化逻辑
 
 	if (LbWorld == nullptr)
 		LbWorld = _LbWorld;
@@ -78,11 +78,33 @@ void UDirectorSubsystem::PlayerDead()
 void UDirectorSubsystem::PassPerGame()
 {
 	UGoldSystem* GoldSystem = GetGameInstance()->GetSubsystem<UGoldSystem>();
-	if (!GoldSystem) return ;
+	if (GoldSystem)
+		GoldSystem->Settlement();
 
-	GoldSystem->Settlement();
+	// 获取玩家控制器
+	// UGameInstanceSubsystem 也可以通过 GetWorld() 获取世界上下文
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+    
+	if (PC)
+	{
+		// 禁止输入 (Disable Input)
+		// 这会阻止玩家角色的移动和操作，但不会停止 Tick
+		PC->DisableInput(PC);
 
-	// TODO : 通关逻辑（显示通关UI、然后返回大厅）
+		// 显示鼠标光标
+		// 死亡后通常需要点击“重试”或“返回大厅”，所以需要释放鼠标
+		PC->bShowMouseCursor = true;
+		PC->SetInputMode(FInputModeUIOnly()); // 切换到仅UI模式，防止鼠标点击影响场景
+	}
+
+	// 暂停游戏 (Pause Game)
+	// 这会停止所有 Actor 的 Tick（除非设置了 bTickEvenWhenPaused），停止物理模拟
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+	// 显示失败UI
+	UUserWidget* StatementUI = CreateWidget(PC, StatementUIClass);
+	Cast<UStatementUI>(StatementUI)->SetState(EStatementState::Win);
+	StatementUI->AddToViewport();
 }
 
 void UDirectorSubsystem::WinTheGame()
