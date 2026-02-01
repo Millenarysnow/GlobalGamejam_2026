@@ -3,11 +3,13 @@
 
 #include "Gameplay/Subsystem/DirectorSubsystem.h"
 
+#include "Blueprint/UserWidget.h"
 #include "GameFramework/GameSession.h"
 #include "Gameplay/Subsystem/GoldSystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Widget/StatementUI.h"
 
-void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld)
+void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld, TSubclassOf<UStatementUI> _InStatementUIClass)
 {
 	// TODO : 初始化逻辑
 
@@ -15,6 +17,7 @@ void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UW
 		LbWorld = _LbWorld;
 	if (GmWorld == nullptr)
 		GmWorld = _GmWorld;
+	StatementUIClass = _InStatementUIClass;
 }
 
 void UDirectorSubsystem::SwitchToLobby()
@@ -64,10 +67,10 @@ void UDirectorSubsystem::PlayerDead()
 	// 这会停止所有 Actor 的 Tick（除非设置了 bTickEvenWhenPaused），停止物理模拟
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
 
-	// TODO : 4. 创建并显示死亡结算 UI (Create Widget -> Add to Viewport)
-	// 提示：确保你的死亡UI Widget 的 Checkbox "Execute when Paused" 是勾选的，否则暂停时按钮没反应。
-    
-	// TODO : 5. 绑定UI按钮事件以返回大厅 (SwitchToLobby)
+	// 显示失败UI
+	UUserWidget* StatementUI = CreateWidget(PC, StatementUIClass);
+	Cast<UStatementUI>(StatementUI)->SetState(EStatementState::Lose);
+	StatementUI->AddToViewport();
 }
 
 void UDirectorSubsystem::PassPerGame()

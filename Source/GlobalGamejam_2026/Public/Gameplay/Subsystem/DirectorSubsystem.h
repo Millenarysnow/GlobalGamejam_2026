@@ -7,6 +7,7 @@
 #include "DirectorSubsystem.generated.h"
 
 
+class UStatementUI;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnErosionChanged, float, CurrentHealth, float, MaxHealth);
 
 
@@ -21,7 +22,8 @@ class GLOBALGAMEJAM_2026_API UDirectorSubsystem : public UGameInstanceSubsystem
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld);
+	void Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld,
+		TSubclassOf<UStatementUI> _InStatementUIClass);
 
 	UPROPERTY()
 	TSoftObjectPtr<UWorld> LbWorld;
@@ -60,4 +62,7 @@ public:
 private:
 	float CurrentErosionValue = 0.f;
 	float MaxErosionValue = 1000.f;
+
+	UPROPERTY()
+	TSubclassOf<UStatementUI> StatementUIClass;
 };
