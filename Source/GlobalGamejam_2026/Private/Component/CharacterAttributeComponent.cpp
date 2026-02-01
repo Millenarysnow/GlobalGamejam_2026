@@ -62,6 +62,8 @@ void UCharacterAttributeComponent::ModifyAttackSpeedRate(float rate)
 
 void UCharacterAttributeComponent::ModifyHealth(float DeltaValue)
 {
+	if (bIsDead) return ;
+	
 	// 防止死亡后鞭尸或过度治疗
 	if (CurrentHealth <= 0.0f && DeltaValue < 0.0f) return;
 
@@ -71,13 +73,17 @@ void UCharacterAttributeComponent::ModifyHealth(float DeltaValue)
 	
 	if (CurrentHealth <= 0.5f)
 	{
-		// 玩家死亡
-
-		if (GetOwner()->ActorHasTag("Player"))
+		bIsDead = true;
+		
+		if (GetOwner()->ActorHasTag("Player")) // 玩家死亡
 		{
 			UDirectorSubsystem* Director = GetOwner()->GetGameInstance()->GetSubsystem<UDirectorSubsystem>();
 
 			Director->PlayerDead();
+		}
+		else // 敌人死亡
+		{
+			GetOwner()->Destroy();
 		}
 	}
 }

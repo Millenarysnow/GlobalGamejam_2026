@@ -93,4 +93,7 @@ private:
 	float SpeedModifyRate = 1.f;
 	float DamageModifyRate = 1.f;
 	float AttackSpeedModifyRate = 1.f;
+
+private:
+	bool bIsDead = false;
 };
