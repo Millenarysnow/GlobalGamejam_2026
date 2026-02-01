@@ -60,3 +60,13 @@ void UDirectorSubsystem::WinTheGame()
 {
 	// TODO : 胜利逻辑（显示胜利UI、然后返回主界面）
 }
+
+void UDirectorSubsystem::SetCurrentErosionValue(float NewErosionValue)
+{
+	CurrentErosionValue = FMath::Clamp(NewErosionValue, 0.f, MaxErosionValue);
+}
+
+float UDirectorSubsystem::GetErosionRate()
+{
+	return FMath::Clamp((CurrentErosionValue + 1.f) / (MaxErosionValue + 1.f) * 100.f, 0.f, 100.f);
+}

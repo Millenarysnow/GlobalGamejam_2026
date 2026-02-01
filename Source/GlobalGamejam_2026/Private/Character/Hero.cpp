@@ -179,6 +179,12 @@ void AHero::RecoverFromSlow(FTimerHandle Handle)
 	Handle.Invalidate();
 }
 
+float AHero::GetHealthPercent()
+{
+	if (!AttributeComponent) return 0.f;
+	return FMath::Clamp((AttributeComponent->GetHealth() + 1.f) / (AttributeComponent->GetMaxHealth() + 1.f), 0.f, 1.f);
+}
+
 void AHero::Move(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();

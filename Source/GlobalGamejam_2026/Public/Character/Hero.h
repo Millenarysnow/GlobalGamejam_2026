@@ -44,6 +44,9 @@ public:
 	// 减速固定为25
 	virtual void OnIHit_Implementation(float DamageAmount, float SlowDuration, AActor* HitInstigator) override;
 	void RecoverFromSlow(FTimerHandle Handle);
+
+	UFUNCTION(BlueprintCallable)
+	float GetHealthPercent();
 	
 protected:
 	/** 摄像机吊臂 */

@@ -35,7 +35,18 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void PassPerGame();
-
+	
 	UFUNCTION(BlueprintCallable)
 	void WinTheGame();
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentErosionValue(float NewErosionValue);
+
+	// 0 - 100
+	UFUNCTION(BlueprintCallable)
+	float GetErosionRate();
+
+private:
+	float CurrentErosionValue = 0.f;
+	float MaxErosionValue = 1000.f;
 };

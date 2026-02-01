@@ -35,7 +35,6 @@ struct FBuffNodeInfo : public FSkillNodeInfo
 
 USTRUCT(BlueprintType)
 struct FGenerateNodeInfo : public FSkillNodeInfo
-
 {
 	GENERATED_BODY()
 
