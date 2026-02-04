@@ -75,6 +75,8 @@ public:
 
 	USkillNode* GetFirstChildNode();
 
+	int32 GetChildCount() const;
+
 	FAccumulativeInfo GetAccumulativeInfo() const;
 	void SetAccumulativeInfo(const FAccumulativeInfo& Info);
 

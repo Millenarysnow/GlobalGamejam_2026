@@ -89,7 +89,7 @@ bool USkillsManagerSubsystem::ConnectNode(USkillNode* ParentNode, USkillNode* Ch
 	if (!ParentNode || !ChildNode) return false;
 	if (ParentNode->GetHashID() == ChildNode->GetHashID()) return false;
 
-	// 如果子节点已经有父节点，断开之前连接
+	// 如果新子节点已经有父节点，断开之前连接
 	if (ChildNode->GetParentNode())
 	{
 		DisconnectNode(ChildNode->GetParentNode(), ChildNode, OnBranchNode::No);
@@ -114,7 +114,22 @@ bool USkillsManagerSubsystem::ConnectNode(USkillNode* ParentNode, USkillNode* Ch
 			}
 		}
 	}
-	
+	else // 非Branch节点，且输出引脚已满，断开第一个子节点
+	{
+		// TODO: 完善当当前父节点引脚已满，自动断开的逻辑。当前只是默认断开第一个 
+		
+		if (ParentNode->GetNodeInfo().OutPinCount > 0 && 
+			ParentNode->GetChildCount() >= ParentNode->GetNodeInfo().OutPinCount) 
+		{
+			// 获取当前的旧子节点
+			USkillNode* OldChild = ParentNode->GetFirstChildNode(); 
+			if (OldChild)
+			{
+				DisconnectNode(ParentNode, OldChild, OnBranchNode::No);
+			}
+		}
+	}
+
 	if (!ParentNode->AddChildNode(ChildNode, Branch)) return false;
 	
 	ChildNode->SetParentNode(ParentNode);

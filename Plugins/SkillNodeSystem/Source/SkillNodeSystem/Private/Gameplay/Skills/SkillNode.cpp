@@ -74,9 +74,9 @@ void USkillNode::RemoveChildNode(USkillNode* Node, OnBranchNode Branch)
 		}
 	}
 
-	if (BranchTrueNode->GetHashID() == Node->GetHashID())
+	if (BranchTrueNode && BranchTrueNode->GetHashID() == Node->GetHashID())
 		BranchTrueNode = nullptr;
-	if (BranchFalseNode->GetHashID() == Node->GetHashID())
+	if (BranchFalseNode && BranchFalseNode->GetHashID() == Node->GetHashID())
 		BranchFalseNode = nullptr;
 	
 	CalculateDelayTime();
@@ -249,6 +249,11 @@ void USkillNode::ForceRemoveAllChild()
 USkillNode* USkillNode::GetFirstChildNode()
 {
 	return ChildNodes.Num() > 0 ? ChildNodes[0] : nullptr;
+}
+
+int32 USkillNode::GetChildCount() const
+{
+	return ChildNodes.Num();
 }
 
 FAccumulativeInfo USkillNode::GetAccumulativeInfo() const
