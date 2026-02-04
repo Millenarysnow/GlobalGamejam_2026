@@ -38,6 +38,82 @@ FVector2D USkillPinWidget::GetPinAbsolutePosition() const
 
 FReply USkillPinWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	// 右键断开连接
+	if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+	{
+		if (OwnerNode.IsValid())
+		{
+			USkillUISubsystem* UISub = GetGameInstance()->GetSubsystem<USkillUISubsystem>();
+			if (UISub && UISub->GetManagerSubsystem())
+			{
+				USkillsManagerSubsystem* Manager = UISub->GetManagerSubsystem();
+				bool bNeedRefresh = false;
+
+				if (bIsInput)
+				{
+					// --- 输入引脚：断开与父节点的连接 ---
+					if (USkillNode* Parent = OwnerNode->GetParentNode())
+					{
+						// 从父节点中断开自己
+						Manager->DisconnectNode(Parent, OwnerNode.Get(), OnBranchNode::No);
+						bNeedRefresh = true;
+					}
+				}
+				else
+				{
+					// --- 输出引脚：断开子节点 ---
+					
+					if (BranchType != OnBranchNode::No)
+					{
+						// 1. 分支引脚 (TrU/FaL)：只断开对应分支的连接
+						USkillNode* TargetChild = nullptr;
+						if (BranchType == OnBranchNode::TrU)
+						{
+							TargetChild = OwnerNode->GetBranchTrueNode();
+						}
+						else 
+						{
+							TargetChild = OwnerNode->GetBranchFalseNode();
+						}
+
+						if (TargetChild)
+						{
+							Manager->DisconnectNode(OwnerNode.Get(), TargetChild, BranchType);
+							bNeedRefresh = true;
+						}
+					}
+					else
+					{
+						// 普通/主输出引脚：断开所有从此引脚连出的子节点
+						// 先收集需要断开的子节点（避免在遍历过程中修改容器导致迭代器失效）
+						TArray<USkillNode*> ChildrenToDisconnect;
+						OwnerNode->ForEachChild([&ChildrenToDisconnect](USkillNode* Child)
+						{
+							if (Child) ChildrenToDisconnect.Add(Child);
+						});
+
+						for (USkillNode* Child : ChildrenToDisconnect)
+						{
+							Manager->DisconnectNode(OwnerNode.Get(), Child, OnBranchNode::No);
+							bNeedRefresh = true;
+						}
+					}
+				}
+
+				// 如果发生了断开操作，刷新画布以更新连线视图
+				if (bNeedRefresh)
+				{
+					if (USkillCanvasWidget* Canvas = GetTypedOuter<USkillCanvasWidget>())
+					{
+						Canvas->RefreshCanvas();
+					}
+				}
+				
+				return FReply::Handled();
+			}
+		}
+	}
+	
 	// 只有输出引脚可以发起连线拖拽
 	if (!bIsInput && InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
 	{
