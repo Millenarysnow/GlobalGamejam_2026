@@ -13,7 +13,7 @@ void UMainUI::OnStartButtonReleased()
 	// GetGameInstance()->GetSubsystem<UDirectorSubsystem>()->SwitchToLobby();
 
 	// 切换到novel
-	GetGameInstance()->GetSubsystem<UDirectorSubsystem>()->SwitchToVN();
+	GetGameInstance()->GetSubsystem<UDirectorSubsystem>()->SwitchToVN(1);
 	
 	RemoveFromParent();
 }

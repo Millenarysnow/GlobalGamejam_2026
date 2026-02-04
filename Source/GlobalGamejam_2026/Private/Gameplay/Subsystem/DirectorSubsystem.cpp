@@ -29,7 +29,6 @@ void UDirectorSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld, TSubclassOf<UStatementUI> _InStatementUIClass, TSubclassOf<UUserWidget> _InVNMainWidgetClass)
 {
 	// 初始化逻辑
-
 	if (LbWorld == nullptr)
 		LbWorld = _LbWorld;
 	if (GmWorld == nullptr)
@@ -38,7 +37,7 @@ void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UW
 	VNMainWidgetClass = _InVNMainWidgetClass;
 }
 
-void UDirectorSubsystem::SwitchToVN()
+void UDirectorSubsystem::SwitchToVN(int32 ChapterID)
 {
 	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
@@ -84,6 +83,13 @@ void UDirectorSubsystem::SwitchToGame()
 		UGameplayStatics::OpenLevel(GetWorld(), FName(*MapName));
 
 		GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeGameAndUI());
+
+		// 重置并开启侵蚀值
+		ResetErosionValue();
+		if (StartErosionTimeline.IsBound())
+		{
+			StartErosionTimeline.Broadcast();
+		}
 	}
 }
 
@@ -97,19 +103,22 @@ void UDirectorSubsystem::PlayerDead()
 	}
 
 	// 获取玩家控制器
-	// UGameInstanceSubsystem 也可以通过 GetWorld() 获取世界上下文
 	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
     
 	if (PC)
 	{
 		// 禁止输入 (Disable Input)
-		// 这会阻止玩家角色的移动和操作，但不会停止 Tick
 		PC->DisableInput(PC);
 
 		// 显示鼠标光标
-		// 死亡后通常需要点击“重试”或“返回大厅”，所以需要释放鼠标
 		PC->bShowMouseCursor = true;
 		PC->SetInputMode(FInputModeUIOnly()); // 切换到仅UI模式，防止鼠标点击影响场景
+	}
+
+	// 停止侵蚀值变化
+	if (StopErosionTimeline.IsBound())
+	{
+		StopErosionTimeline.Broadcast();
 	}
 
 	// 暂停游戏 (Pause Game)
@@ -129,7 +138,6 @@ void UDirectorSubsystem::PassPerGame()
 		GoldSystem->Settlement();
 
 	// 获取玩家控制器
-	// UGameInstanceSubsystem 也可以通过 GetWorld() 获取世界上下文
 	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
     
 	if (PC)
@@ -139,7 +147,6 @@ void UDirectorSubsystem::PassPerGame()
 		PC->DisableInput(PC);
 
 		// 显示鼠标光标
-		// 死亡后通常需要点击“重试”或“返回大厅”，所以需要释放鼠标
 		PC->bShowMouseCursor = true;
 		PC->SetInputMode(FInputModeUIOnly()); // 切换到仅UI模式，防止鼠标点击影响场景
 	}
@@ -148,7 +155,13 @@ void UDirectorSubsystem::PassPerGame()
 	// 这会停止所有 Actor 的 Tick（除非设置了 bTickEvenWhenPaused），停止物理模拟
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
 
-	// 显示失败UI
+	// 停止侵蚀值变化
+	if (StopErosionTimeline.IsBound())
+	{
+		StopErosionTimeline.Broadcast();
+	}
+
+	// 显示胜利UI
 	UUserWidget* StatementUI = CreateWidget(PC, StatementUIClass);
 	Cast<UStatementUI>(StatementUI)->SetState(EStatementState::Win);
 	StatementUI->AddToViewport();
@@ -159,14 +172,32 @@ void UDirectorSubsystem::WinTheGame()
 	// TODO : 胜利逻辑（显示胜利UI、然后返回主界面）
 }
 
+void UDirectorSubsystem::ResetErosionValue()
+{
+	SetCurrentErosionValue(MaxErosionValue);
+}
+
 void UDirectorSubsystem::SetCurrentErosionValue(float NewErosionValue)
 {
 	CurrentErosionValue = FMath::Clamp(NewErosionValue, 0.f, MaxErosionValue);
 
+	// 广播侵蚀值变化事件（用于UI）
 	if (OnErosionChanged.IsBound())
 	{
 		OnErosionChanged.Broadcast(CurrentErosionValue, MaxErosionValue);
-	}		
+	}
+
+	if (CurrentErosionValue >= MaxErosionValue)
+	{
+		// 侵蚀值达到最大，玩家死亡
+		PlayerDead();
+	}
+}
+
+void UDirectorSubsystem::SetCurrentErosionValueByRate(float ErosionRate)
+{
+	float NewErosionValue = FMath::Clamp(ErosionRate, 0.f, 100.f) / 100.f * MaxErosionValue;
+	SetCurrentErosionValue(NewErosionValue);
 }
 
 float UDirectorSubsystem::GetErosionRate()

@@ -4,13 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "UObject/CookEnums.h"
 #include "DirectorSubsystem.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnErosionChanged, float, CurrentHealth, float, MaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartErosionTimeline);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStopErosionTimeline);
+
 class UVNMainWidget;
 class UStatementUI;
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnErosionChanged, float, CurrentHealth, float, MaxHealth);
-
 
 
 /**
@@ -29,7 +32,7 @@ public:
 		TSubclassOf<UStatementUI> _InStatementUIClass, TSubclassOf<UUserWidget> _InVNMainWidgetClass);
 
 	UFUNCTION(BlueprintCallable)
-	void SwitchToVN();
+	void SwitchToVN(int32 ChapterID);
 
 	// 监听来自 VN 子系统的事件
 	UFUNCTION()
@@ -56,23 +59,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void WinTheGame();
 
-	UFUNCTION(BlueprintCallable)
-	void SetCurrentErosionValue(float NewErosionValue);
-
-	// 0 - 100
-	UFUNCTION(BlueprintCallable)
-	float GetErosionRate();
-
-	UPROPERTY(BlueprintAssignable, Category = "Events")
-	FOnErosionChanged OnErosionChanged;
-
-	float GetErosionValue();
-	float GetMaxErosionValue();
-
 private:
-	float CurrentErosionValue = 0.f;
-	float MaxErosionValue = 1000.f;
-
 	UPROPERTY()
 	TSubclassOf<UStatementUI> StatementUIClass;
 
@@ -81,4 +68,37 @@ private:
 
 	UPROPERTY()
 	UUserWidget* VNUI;
+
+// --- 侵蚀值 ---
+	
+public:
+	UFUNCTION(BlueprintCallable)
+	void ResetErosionValue();
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentErosionValue(float NewErosionValue);
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentErosionValueByRate(float ErosionRate);
+
+	// 0 - 100
+	UFUNCTION(BlueprintCallable)
+	float GetErosionRate();
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnErosionChanged OnErosionChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FStartErosionTimeline StartErosionTimeline;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FStopErosionTimeline StopErosionTimeline;
+
+	float GetErosionValue();
+	float GetMaxErosionValue();
+
+private:
+	float CurrentErosionValue = 0.f;
+	float MaxErosionValue = 1000.f;
+
 };

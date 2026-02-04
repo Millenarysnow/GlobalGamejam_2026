@@ -86,15 +86,14 @@ void UFightUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void UFightUI::FlushErosionUI(float CurrentValue, float MaxValue)
 {
-	UE_LOG(LogTemp, Warning, TEXT("FlushErosionUI called with CurrentErosion: %.2f, MaxErosion: %.2f"), CurrentValue, MaxValue);
+	// UE_LOG(LogTemp, Warning, TEXT("FlushErosionUI called with CurrentErosion: %.2f, MaxErosion: %.2f"), CurrentValue, MaxValue);
 	
 	if (!ErosionMaterialInst) return;
 
 	// 计算百分比 (0.0 - 1.0)
 	float Percent = (MaxValue > 0.f) ? (CurrentValue / MaxValue) : 0.f;
 
-	// 3. 设置材质参数
-	// 注意：这里的 "Percent" 必须和你材质编辑器里 Scalar Parameter 的名字完全一致！
+	// 设置材质参数
 	ErosionMaterialInst->SetScalarParameterValue(FName("Percent"), Percent);
 
 	ErosionText->SetText(FText::FromString(FString::Printf(TEXT("%.0f / %.0f"), CurrentValue, MaxValue)) );
