@@ -43,7 +43,7 @@ USkillNode* USkillsManagerSubsystem::NewSkillNode(const FSkillNodeInfo& NodeInfo
 	HashToNode.Add(HashID, Node);
 
 	UE_LOG(LogSkillNode, Warning, TEXT("NewNode : Type : %s, HashID : %d"), *UEnum::GetValueAsString(NodeInfo.NodeType), HashID);
-	UE_LOG(LogSkillNode, Warning, TEXT("NewNode : Type : %s"), *Node->StaticClass()->GetName());
+	UE_LOG(LogSkillNode, Warning, TEXT("NewNode : Type : %s"), *Node->GetClass()->GetName());
     
 	if (NodeInfo.NodeType == ESkillNodeType::StartNode)
 	{

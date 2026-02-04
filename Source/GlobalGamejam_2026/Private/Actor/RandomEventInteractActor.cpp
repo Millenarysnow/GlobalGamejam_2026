@@ -62,10 +62,10 @@ void ARandomEventInteractActor::OnInteract_Implementation(AHero* Interactor)
 					break;
 				}
 
-				USkillNode* Node = GetGameInstance()->GetSubsystem<USkillsManagerSubsystem>()->NewSkillNode(NewNodeInfo, TargetClass);
-				GetGameInstance()->GetSubsystem<UGoldSystem>()->AddNewNodeGold_InGame(Node);
+				// USkillNode* Node = GetGameInstance()->GetSubsystem<USkillsManagerSubsystem>()->NewSkillNode(NewNodeInfo, TargetClass);
+				// GetGameInstance()->GetSubsystem<UGoldSystem>()->AddNewNodeGold_InGame(Node);
 				
-				// SkillSys->NewNode(NewNodeInfo, TargetClass);
+				SkillSys->NewNode(NewNodeInfo, TargetClass);
 			}
 		}
 		
@@ -79,19 +79,31 @@ FSkillNodeInfo ARandomEventInteractActor::GenerateRandomNodeInfo()
 	
 	// 随机决定节点大类 (生成、Buff、参数)
 	// 0: Generate, 1: Buff, 2: Param
-	int32 RandomType = FMath::RandRange(0, 2);
+	// 0: Generate, 1: Start, 2: Buff, 3: Param
+	int32 RandomType = FMath::RandRange(0, 1);
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("RandomEventInteractActor: Generating Random Node Type %d"), RandomType));
 
 	switch (RandomType)
 	{
 	case 0: // Generate Node
 		Info.NodeType = ESkillNodeType::GenerateNode;
 		// 随机生成物类型 (StandardBullet 或 Explosion)
-		Info.GeneratedType = FMath::RandBool() ? EGeneratedType::StandardBullet : EGeneratedType::Explosion;
+		Info.GeneratedType = EGeneratedType::StandardBullet; // FMath::RandBool() ? EGeneratedType::StandardBullet : EGeneratedType::Explosion;
+		Info.SwitchTargetType = ESwitchTargetType::Changed;
 		Info.Damage = FMath::RandRange(10.f, 30.f);
 		Info.Radius = FMath::RandRange(50.f, 150.f);
 		break;
 
-	case 1: // Buff Node
+	case 1: // Start Node
+		Info.NodeType = ESkillNodeType::StartNode;
+		Info.SwitchTargetType = ESwitchTargetType::Unchanged;
+		Info.DelayTime = 10.f;
+		Info.OutPinCount = 1;
+		Info.StartNodeType = EStartNodeType::LeftButton;
+		break;
+
+	case 2: // Buff Node
 		Info.NodeType = ESkillNodeType::BuffNode;
 		// 随机 Buff 类型
 		Info.BuffType = FMath::RandBool() ? EBuffType::Accelerate : EBuffType::Strength;
@@ -99,7 +111,7 @@ FSkillNodeInfo ARandomEventInteractActor::GenerateRandomNodeInfo()
 		Info.BuffValue = FMath::RandRange(1.1f, 1.5f); // 10% - 50% 提升
 		break;
 
-	case 2: // Param Node
+	case 3: // Param Node
 		Info.NodeType = ESkillNodeType::ParamNode;
 		// 随机参数类型
 		Info.ParamType = FMath::RandBool() ? EParamType::Damage : EParamType::EffectiveTime;
@@ -112,10 +124,14 @@ FSkillNodeInfo ARandomEventInteractActor::GenerateRandomNodeInfo()
 			Info.ParamFloatValue = FMath::RandRange(0.5f, 2.0f);
 		}
 		break;
+
+	default:
+		UE_LOG(LogTemp, Error, TEXT("RandomEventInteractActor: Invalid RandomType %d"), RandomType);
+		break;
 	}
 
 	// 通用设置
-	Info.DelayTime = FMath::RandRange(0.1f, 0.5f);
+	Info.DelayTime = 100.f; // FMath::RandRange(0.1f, 0.5f);
 	Info.OutPinCount = 1; // 默认给一个输出引脚
 
 	return Info;

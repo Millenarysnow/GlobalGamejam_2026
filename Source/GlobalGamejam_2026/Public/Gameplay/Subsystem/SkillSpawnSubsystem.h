@@ -36,7 +36,7 @@ public:
 	// -- 局中真正调用的函数 --
 	
 	UFUNCTION(BlueprintCallable)
-	void NewNode(const FSkillNodeInfo& NodeInfo, TSubclassOf<USkillNode> SkillNodeClass); // 已弃用
+	void NewNode(const FSkillNodeInfo& NodeInfo, TSubclassOf<USkillNode> SkillNodeClass); 
 
 	UFUNCTION(BlueprintCallable)
 	void ClearAllNodeInformation();
