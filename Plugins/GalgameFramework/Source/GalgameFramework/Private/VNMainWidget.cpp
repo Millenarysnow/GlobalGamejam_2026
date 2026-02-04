@@ -69,6 +69,8 @@ void UVNMainWidget::HandleTextUpdate(const FString& Text, int32 SpeakerID, int32
      * ...
      */
 
+    UE_LOG(LogTemp, Log, TEXT("VNMainWidget: HandleTextUpdate BgID=%d CharID=%d Text=%s"), BgID, CharID, *Text);
+
     if (BgID < 0 || BgID > BackgroundImages.Num())
     {
         UE_LOG(LogTemp, Error, TEXT("Invalid BgID: %d"), BgID);

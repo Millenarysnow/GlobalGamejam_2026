@@ -51,7 +51,7 @@ void UVNGameSubsystem::LoadRow(int32 Chapter, int32 Line)
 {
     if (!ChapterDataTable) return;
 
-    FString Context;
+    FString Context; // 用于日志的上下文信息（错误信息）
     FVNChapterRow* Row = ChapterDataTable->FindRow<FVNChapterRow>(GetRowName(Chapter, Line), Context);
 
     if (!Row)
@@ -60,11 +60,18 @@ void UVNGameSubsystem::LoadRow(int32 Chapter, int32 Line)
         return;
     }
 
+    if (Row->SP1 != 0)
+    {
+        if (OnSP1Event.IsBound())
+        {
+            OnSP1Event.Broadcast(Row->SP1, Row->SP2);
+        }
+    }
+    
     // --- 核心状态机逻辑  ---
-
+    
     if (Row->SP1 == 10)
     {
-        GetGameInstance()->GetSubsystem<UDirectorSubsystem>()->SwitchToLobby();
         return ;
     }
 
@@ -108,7 +115,8 @@ void UVNGameSubsystem::LoadRow(int32 Chapter, int32 Line)
         // 这里假设 SpeakerID 可以从 Text 解析，或者你有单独字段
         // 为了演示，直接传 Background 和 Character
 
-        UE_LOG(LogTemp, Log, TEXT("VN: LoadRow Chapter%d_%d Text: %s"), Chapter, Line, *Row->Text);
+        UE_LOG(LogTemp, Log, TEXT("VN: LoadRow Chapter%d_%d Text: %s, BG: %d, CH: %d"), Chapter, Line, *Row->Text,
+            Row->BackgroundImg, Row->CharacterImg);
         
         OnTextUpdate.Broadcast(Row->Text, 0, Row->BackgroundImg, Row->CharacterImg);
     }

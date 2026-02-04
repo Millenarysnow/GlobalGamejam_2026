@@ -10,6 +10,22 @@
 #include "Kismet/GameplayStatics.h"
 #include "Widget/StatementUI.h"
 
+void UDirectorSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	// 监听 VN 子系统的事件
+	UGameInstance* GameInstance = GetGameInstance();
+	if (GameInstance)
+	{
+		UVNGameSubsystem* VNSubsystem = GameInstance->GetSubsystem<UVNGameSubsystem>();
+		if (VNSubsystem)
+		{
+			VNSubsystem->OnSP1Event.AddDynamic(this, &UDirectorSubsystem::OnVNSP1Called);
+		}
+	}
+}
+
 void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld, TSubclassOf<UStatementUI> _InStatementUIClass, TSubclassOf<UUserWidget> _InVNMainWidgetClass)
 {
 	// 初始化逻辑
@@ -31,13 +47,28 @@ void UDirectorSubsystem::SwitchToVN()
     GetGameInstance()->GetSubsystem<UVNGameSubsystem>()->StartChapter(1, 1);
 }
 
+void UDirectorSubsystem::OnVNSP1Called(int32 SP1Value, int32 SP2Value)
+{
+	if (SP1Value == 10) // 需要切换场景
+	{
+		if (SP2Value == 1) // 序言：从主界面切换至大厅
+		{
+			if (VNUI)
+			{
+				VNUI->RemoveFromParent();
+				VNUI = nullptr;
+			}
+			SwitchToLobby();
+		}
+		if (SP2Value == 2) // 结尾：从游戏切换至主界面
+		{
+			
+		}
+	}
+}
+
 void UDirectorSubsystem::SwitchToLobby()
 {
-	if (VNUI)
-	{
-		VNUI->RemoveFromParent();
-		VNUI = nullptr;
-	}
 	if (LbWorld.ToSoftObjectPath().IsValid())
 	{
 		const FString MapName = LbWorld.ToSoftObjectPath().GetAssetName();

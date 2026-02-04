@@ -22,12 +22,18 @@ class GLOBALGAMEJAM_2026_API UDirectorSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	
 	UFUNCTION(BlueprintCallable)
 	void Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld,
 		TSubclassOf<UStatementUI> _InStatementUIClass, TSubclassOf<UUserWidget> _InVNMainWidgetClass);
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchToVN();
+
+	// 监听来自 VN 子系统的事件
+	UFUNCTION()
+	void OnVNSP1Called(int32 SP1Value, int32 SP2Value);
 	
 	UPROPERTY()
 	TSoftObjectPtr<UWorld> LbWorld;

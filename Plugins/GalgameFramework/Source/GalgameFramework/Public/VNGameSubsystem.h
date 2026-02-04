@@ -11,6 +11,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnVNShowOptions, int32, BranchID); 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnVNSpecialEvent, int32, EventID); // 通知UI播放演出
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnVNChapterEnd); // 章节结束
 
+// --- 定义委托：对外接口 ---
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSP1Event, int32, SP1Value, int32, SP2Value);
+
+
 class UDataTable;
 
 UCLASS()
@@ -56,6 +60,9 @@ public:
 
     UPROPERTY(BlueprintAssignable, Category = "VN Events")
     FOnVNSpecialEvent OnSpecialEvent;
+
+    UPROPERTY(BlueprintAssignable, Category = "VN Events")
+    FOnSP1Event OnSP1Event;
 
 private:
     int32 CurrentChapterID;
