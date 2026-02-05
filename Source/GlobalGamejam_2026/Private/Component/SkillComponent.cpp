@@ -13,6 +13,10 @@ USkillComponent::USkillComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+void USkillComponent::PlayShootSFX_Implementation()
+{
+}
+
 bool USkillComponent::IfBloodLow()
 {
 	return true;
@@ -83,6 +87,7 @@ void USkillComponent::GenerateItem(FNodeGenerateValueFinal GenerateValueFinal)
 	case EGeneratedType::StandardBullet:
 	case EGeneratedType::EnhancedBullet:
 		SpawnedActor = World->SpawnActor<AGeneratedBullet>(GeneratedBulletClass, SpawnLocation, SpawnRotation, SpawnParams);
+		PlayShootSFX();
 		break;
 
 	case EGeneratedType::Explosion:

@@ -33,6 +33,14 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnHealthChanged OnHealthChanged;
+
+	UFUNCTION(BlueprintNativeEvent)
+	void PlayDeadSFX();
+	void PlayDeadSFX_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void PlayHurtSFX();
+	void PlayHurtSFX_Implementation();
 	
 #pragma region UTIL
 

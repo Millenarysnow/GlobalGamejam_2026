@@ -36,7 +36,7 @@ protected:
 	bool bPlayingAnim = false;
 
 	float AnimTime = 0.f;
-	float AnimFrame = 10.f;
+	float AnimFrame = 5.f;
 
 	bool bBlingState = true;
 };

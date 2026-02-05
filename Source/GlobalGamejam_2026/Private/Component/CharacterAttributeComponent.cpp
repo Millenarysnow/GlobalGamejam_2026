@@ -39,6 +39,14 @@ void UCharacterAttributeComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	// ...
 }
 
+void UCharacterAttributeComponent::PlayDeadSFX_Implementation()
+{
+}
+
+void UCharacterAttributeComponent::PlayHurtSFX_Implementation()
+{
+}
+
 void UCharacterAttributeComponent::ModifySpeedRate(float rate)
 {
 	SpeedModifyRate += rate;
@@ -74,13 +82,17 @@ void UCharacterAttributeComponent::ModifyHealth(float DeltaValue)
 	if (OnHealthChanged.IsBound())
 	{
 		OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
-	}		
+	}
+
+	PlayHurtSFX();
 	
 	// 死亡逻辑
 	
 	if (CurrentHealth <= 0.5f)
 	{
 		bIsDead = true;
+
+		PlayDeadSFX();
 		
 		if (GetOwner()->ActorHasTag("Player")) // 玩家死亡
 		{

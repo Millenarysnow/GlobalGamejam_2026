@@ -27,6 +27,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
 	TSubclassOf<AGeneratedExplosion> GeneratedExplosionClass;
 
+	UFUNCTION(BlueprintNativeEvent)
+	void PlayShootSFX();
+	void PlayShootSFX_Implementation();
+
 #pragma region SkillInterface
 
 	// 血量是否低于阈值 // 暂时弃用
