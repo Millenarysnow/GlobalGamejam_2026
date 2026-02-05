@@ -29,7 +29,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld,
-		TSubclassOf<UStatementUI> _InStatementUIClass, TSubclassOf<UUserWidget> _InVNMainWidgetClass);
+		TSubclassOf<UStatementUI> _InStatementUIClass, TSubclassOf<UUserWidget> _InVNMainWidgetClass,
+		USoundCue* _InMainBgm, USoundCue* _InLobbyBgm, USoundCue* _InFightBgm);
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchToVN(int32 ChapterID);
@@ -59,6 +60,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void WinTheGame();
 
+	// ------ BGM ------
+
+	UFUNCTION(BlueprintCallable)
+	void PlayBGM(USoundCue* BGMToPlay, float FadeInTime = 0.5f, float FadeOutTime = 0.5f);
+
+	UFUNCTION(BlueprintCallable)
+	void StopBGM(float FadeOutTime = 0.5f);
+
 private:
 	UPROPERTY()
 	TSubclassOf<UStatementUI> StatementUIClass;
@@ -69,7 +78,25 @@ private:
 	UPROPERTY()
 	UUserWidget* VNUI;
 
-// --- 侵蚀值 ---
+	// --- BGM ---
+	
+	UPROPERTY()
+	USoundCue* MainBgm;
+
+	UPROPERTY()
+	USoundCue* LobbyBgm;
+
+	UPROPERTY()
+	USoundCue* FightBgm;
+
+	UPROPERTY()
+	UAudioComponent* BgmAudioComponent;
+
+	UPROPERTY()
+	USoundCue* CurrentSound;
+
+	
+	// ------ 侵蚀值 -------
 	
 public:
 	UFUNCTION(BlueprintCallable)

@@ -4,10 +4,13 @@
 #include "Gameplay/Subsystem/DirectorSubsystem.h"
 
 #include "VNGameSubsystem.h"
+#include "Animation/AnimSubsystem_PropertyAccess.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/GameSession.h"
 #include "Gameplay/Subsystem/GoldSystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 #include "Widget/StatementUI.h"
 
 void UDirectorSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -26,7 +29,8 @@ void UDirectorSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	}
 }
 
-void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld, TSubclassOf<UStatementUI> _InStatementUIClass, TSubclassOf<UUserWidget> _InVNMainWidgetClass)
+void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UWorld> _GmWorld, TSubclassOf<UStatementUI> _InStatementUIClass, TSubclassOf<UUserWidget> _InVNMainWidgetClass,
+	USoundCue* _InMainBgm, USoundCue* _InLobbyBgm, USoundCue* _InFightBgm)
 {
 	// 初始化逻辑
 	if (LbWorld == nullptr)
@@ -35,6 +39,10 @@ void UDirectorSubsystem::Init(TSoftObjectPtr<UWorld> _LbWorld, TSoftObjectPtr<UW
 		GmWorld = _GmWorld;
 	StatementUIClass = _InStatementUIClass;
 	VNMainWidgetClass = _InVNMainWidgetClass;
+
+	MainBgm = _InMainBgm;
+	LobbyBgm = _InLobbyBgm;
+	FightBgm = _InFightBgm;
 }
 
 void UDirectorSubsystem::SwitchToVN(int32 ChapterID)
@@ -43,7 +51,7 @@ void UDirectorSubsystem::SwitchToVN(int32 ChapterID)
 
 	VNUI = CreateWidget(PC, VNMainWidgetClass);
 	VNUI->AddToViewport();
-    GetGameInstance()->GetSubsystem<UVNGameSubsystem>()->StartChapter(1, 1);
+    GetGameInstance()->GetSubsystem<UVNGameSubsystem>()->StartChapter(ChapterID, 1);
 }
 
 void UDirectorSubsystem::OnVNSP1Called(int32 SP1Value, int32 SP2Value)
@@ -72,6 +80,8 @@ void UDirectorSubsystem::SwitchToLobby()
 	{
 		const FString MapName = LbWorld.ToSoftObjectPath().GetAssetName();
 		UGameplayStatics::OpenLevel(GetWorld(), FName(*MapName));
+
+		PlayBGM(LobbyBgm);
 	}
 }
 
@@ -90,6 +100,8 @@ void UDirectorSubsystem::SwitchToGame()
 		{
 			StartErosionTimeline.Broadcast();
 		}
+
+		PlayBGM(FightBgm);
 	}
 }
 
@@ -170,6 +182,46 @@ void UDirectorSubsystem::PassPerGame()
 void UDirectorSubsystem::WinTheGame()
 {
 	// TODO : 胜利逻辑（显示胜利UI、然后返回主界面）
+}
+
+void UDirectorSubsystem::PlayBGM(USoundCue* BGMToPlay, float FadeInTime, float FadeOutTime)
+{
+	if (!BGMToPlay) return;
+
+	// 1. 如果新音乐和当前音乐相同且正在播放，直接返回，实现跨关卡无缝无断点
+	if (CurrentSound == BGMToPlay && BgmAudioComponent && BgmAudioComponent->IsPlaying())
+	{
+		return;
+	}
+
+	// 2. 如果已有音乐在播放，先淡出并清理
+	if (BgmAudioComponent)
+	{
+		BgmAudioComponent->FadeOut(FadeOutTime, 0.0f);
+		// 注意：FadeOut 不会立即销毁组件，旧组件会被垃圾回收处理
+	}
+
+	// 3. 播放新音乐
+	CurrentSound = BGMToPlay;
+	// 使用 SpawnSound2D 以便获取引用并控制其持久性
+	BgmAudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), BGMToPlay, 1.0f, 1.0f, 0.0f, nullptr, true);
+    
+	if (BgmAudioComponent)
+	{
+		// 关键：确保在切换关卡时不会因为音量静音被意外停止
+		BgmAudioComponent->bIsUISound = true; 
+		BgmAudioComponent->FadeIn(FadeInTime);
+	}
+}
+
+void UDirectorSubsystem::StopBGM(float FadeOutTime)
+{
+	if (BgmAudioComponent)
+	{
+		BgmAudioComponent->FadeOut(FadeOutTime, 0.0f);
+		BgmAudioComponent = nullptr;
+		CurrentSound = nullptr;
+	}
 }
 
 void UDirectorSubsystem::ResetErosionValue()

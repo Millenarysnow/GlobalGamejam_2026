@@ -80,7 +80,7 @@ FSkillNodeInfo ARandomEventInteractActor::GenerateRandomNodeInfo()
 	// 随机决定节点大类 (生成、Buff、参数)
 	// 0: Generate, 1: Buff, 2: Param
 	// 0: Generate, 1: Start, 2: Buff, 3: Param
-	int32 RandomType = FMath::RandRange(0, 1);
+	int32 RandomType = FMath::RandRange(0, 2);
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("RandomEventInteractActor: Generating Random Node Type %d"), RandomType));
 

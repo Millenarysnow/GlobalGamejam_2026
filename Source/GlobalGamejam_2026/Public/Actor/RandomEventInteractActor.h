@@ -29,7 +29,7 @@ protected:
 
 	/** 触发生成怪物的概率 (0.0 - 1.0)，默认 0.5 */
 	UPROPERTY(EditAnywhere, Category = "RandomEvent")
-	float SpawnMonsterProbability = 0.1f;
+	float SpawnMonsterProbability = 0.3f;
 
 private:
 	FSkillNodeInfo GenerateRandomNodeInfo();
