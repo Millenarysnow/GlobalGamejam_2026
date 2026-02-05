@@ -16,6 +16,10 @@ void AHeroController::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("SkillsRuntimeSubsystem is not found!"));
 	}
 
+	FInputModeGameOnly InputMode;
+	SetInputMode(InputMode);
+	bShowMouseCursor = false;
+
 	// TODO: 暂时直接解锁节点，且没有锁定
 	SkillsRuntimeSubsystem->LaunchAllStartNode();
 }

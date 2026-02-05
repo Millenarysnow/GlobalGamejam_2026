@@ -202,6 +202,8 @@ UCharacterAttributeComponent* AHero::GetAttributeComp()
 
 void AHero::Move(const FInputActionValue& Value)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("Move Input: %s"), *Value.ToString()));
+	
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)

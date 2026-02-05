@@ -12,10 +12,15 @@ void USkillsRuntimeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
+	UE_LOG(LogTemp, Error, TEXT("SkillsRuntimeSubsystem Initialized"));
+	
 	for (int i = 0; i < 6; i++)
 	{
+		UE_LOG(LogTemp, Error, TEXT("Adding StartSkillNodeMap for type: %d"), i);
 		StartSkillNodeByMap.Add(i, FStartSkillNodeMap());
 	}
+
+	UE_LOG(LogTemp, Error, TEXT("StartSkillNodeByMap: %d"), StartSkillNodeByMap.Num());
 }
 
 void USkillsRuntimeSubsystem::LaunchAllStartNode()
@@ -32,6 +37,8 @@ void USkillsRuntimeSubsystem::TriggerStartNode(EStartNodeType StartNodeType)
 {
 	UGameInstance* const& GameInstance = GetGameInstance();
 	checkf(GameInstance != nullptr, TEXT("Millenarysnow : GameInstance in SkillRuntimeSubsystem is nullptr."));
+
+	// UE_LOG(LogTemp, Error, TEXT("TriggerStartNode called for type: %d"), static_cast<int>(StartNodeType));
 	
 	FStartSkillNodeMap& StartSkillNodeMap = StartSkillNodeByMap[static_cast<int>(StartNodeType)];
 	for (auto& Element : StartSkillNodeMap.CanTrigger)
@@ -60,7 +67,22 @@ void USkillsRuntimeSubsystem::TriggerStartNode(EStartNodeType StartNodeType)
 
 void USkillsRuntimeSubsystem::ClearNode()
 {
-	StartSkillNodeByMap.Empty();
+	for (auto& Pair : StartSkillNodeByMap)
+	{
+		for (auto& Element : Pair.Value.NodeMap)
+		{
+			UGameInstance* const& GameInstance = GetGameInstance();
+			checkf(GameInstance != nullptr, TEXT("Millenarysnow : GameInstance in SkillRuntimeSubsystem is nullptr."));
+			
+			if (Element.Value.IsValid())
+			{
+				GameInstance->GetTimerManager().ClearTimer(Element.Value);
+			}
+		}
+
+		Pair.Value.CanTrigger.Empty();
+		Pair.Value.NodeMap.Empty();
+	}
 }
 
 USkillsRuntimeSubsystem* USkillsRuntimeSubsystem::Get(const UObject* WorldContextObject)
