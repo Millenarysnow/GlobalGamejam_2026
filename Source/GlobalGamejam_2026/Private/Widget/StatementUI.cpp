@@ -10,6 +10,12 @@
 void UStatementUI::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
+}
+
+void UStatementUI::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
 
 	if (ContinueButton)
 	{
@@ -33,10 +39,15 @@ void UStatementUI::SetState(EStatementState State)
 	default:
 		break;
 	}
+	PlaySFX(State);
 }
 
 void UStatementUI::OnContinueButtonReleased()
 {
 	GetGameInstance()->GetSubsystem<UDirectorSubsystem>()->SwitchToLobby();
 	RemoveFromParent();
+}
+
+void UStatementUI::PlaySFX_Implementation(EStatementState State)
+{
 }

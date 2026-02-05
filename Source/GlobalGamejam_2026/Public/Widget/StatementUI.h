@@ -27,7 +27,8 @@ class GLOBALGAMEJAM_2026_API UStatementUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	virtual void NativeConstruct() override;
+	virtual void NativeConstruct() override; // 加入到视口或构造时调用，可能调用多次
+	virtual void NativeOnInitialized() override; // 初始化时调用一次
 	
 	UPROPERTY(meta = (BindWidget))
 	UBorder* BackgroundBorder;
@@ -46,4 +47,9 @@ public:
 
 	UFUNCTION()
 	void OnContinueButtonReleased();
+
+	// 播放音效
+	UFUNCTION(BlueprintNativeEvent)
+	void PlaySFX(EStatementState State);
+	void PlaySFX_Implementation(EStatementState State);
 };
